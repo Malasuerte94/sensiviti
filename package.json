@@ -1,0 +1,107 @@
+{
+  "name": "sensiviti",
+  "productName": "Sensiviti",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Find your feel. Automatic PSA sensitivity calibration and aim training.",
+  "author": "Sensiviti",
+  "license": "MIT",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write src electron scripts tests *.ts *.json *.html",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:desktop": "node scripts/desktop-smoke.mjs",
+    "test:startup": "node scripts/startup-smoke.mjs",
+    "build": "node scripts/build.mjs",
+    "package": "npm run build && electron-builder --win nsis portable --x64 --publish never && node scripts/release-artifacts.mjs",
+    "package:installer": "npm run build && electron-builder --win nsis --x64 --publish never",
+    "package:portable": "npm run build && electron-builder --win portable --x64 --publish never"
+  },
+  "build": {
+    "appId": "com.sensiviti.desktop",
+    "productName": "Sensiviti",
+    "extraResources": [
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "licenses",
+        "to": "licenses"
+      }
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signExecutable": false
+    },
+    "portable": {
+      "artifactName": "Sensiviti-${version}-portable.exe"
+    },
+    "nsis": {
+      "artifactName": "Sensiviti-${version}-setup.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": false,
+      "license": "LICENSE"
+    }
+  },
+  "overrides": {
+    "global-agent": "^4.1.3"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.2.0",
+    "@fontsource/space-grotesk": "^5.2.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.180.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.180.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^44.8.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "prettier": "^3.6.0",
+    "typescript": "^5.7.0",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

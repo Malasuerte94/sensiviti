@@ -1,0 +1,16 @@
+node_modules/
+dist/
+dist-electron/
+release/
+test-results/
+playwright-report/
+.sensiviti-test/
+*.log
+.env
+.env.*
+!.env.example
+sensiviti.json
+sensiviti.json.tmp
+sensiviti-backup*.json
+*.pem
+*.pfx

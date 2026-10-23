@@ -1,0 +1,90 @@
+name: Windows release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify tag matches the application version
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_NAME -cne "v$version") { throw 'Tag must match package.json version.' }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npx playwright install chromium
+      - run: npm run test:e2e
+      - name: Build installer, portable application, and checksums
+        run: npm run package
+      - name: Verify startup and saved-profile loading
+        run: npm run test:startup
+      - name: Stage verified release files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-release
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+          path: |
+            release/Sensiviti-*-setup.exe
+            release/Sensiviti-*-portable.exe
+            release/SHA256SUMS.txt
+            release/RELEASE_NOTES.md
+      - name: Retain failing browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-browser-diagnostics
+          path: test-results/
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-release
+          path: release
+      - name: Publish complete GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release
+          sha256sum --check SHA256SUMS.txt
+          repo="$GITHUB_REPOSITORY"
+          tag="$GITHUB_REF_NAME"
+          if gh release view "$tag" --repo "$repo" >/dev/null 2>&1; then
+            draft="$(gh release view "$tag" --repo "$repo" --json isDraft --jq .isDraft)"
+            if [ "$draft" != "true" ]; then
+              echo "A published release already exists; refusing to replace it."
+              exit 1
+            fi
+          else
+            gh release create "$tag" --repo "$repo" --verify-tag --title "Sensiviti ${tag#v}" --notes-file RELEASE_NOTES.md --draft
+          fi
+          gh release upload "$tag" --repo "$repo" Sensiviti-*-setup.exe Sensiviti-*-portable.exe SHA256SUMS.txt --clobber
+          gh release edit "$tag" --repo "$repo" --notes-file RELEASE_NOTES.md --draft=false --latest
+
