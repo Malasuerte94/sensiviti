@@ -4,6 +4,24 @@ import { defaultSetup } from '../../src/core/games';
 import { initialState } from '../../src/core/schema';
 import { snapPosition } from '../../src/core/motion';
 import type { AppState, CalibrationSession } from '../../src/core/types';
+test.beforeEach(async ({ page }) => {
+  if (process.env.CI) {
+    // Hosted Windows runners use CPU rasterization. Reduce only the backing
+    // resolution of WebGL canvases; CSS geometry, input, clocks, and scoring
+    // remain unchanged. Real desktop/portable smoke tests use full resolution.
+    await page.addInitScript(() => {
+      Object.defineProperty(window, 'devicePixelRatio', { configurable: true, get: () => 0.25 });
+    });
+  }
+});
+async function advanceTrial(page: Page, milliseconds: number) {
+  // Advance in bounded display frames rather than rendering thousands of
+  // software-rasterized frames on hosted runners. Keep the suspension guard
+  // active: no step is large enough to count as a stalled renderer.
+  for (let elapsed = 0; elapsed < milliseconds; elapsed += 200) {
+    await page.clock.fastForward(Math.min(200, milliseconds - elapsed));
+  }
+}
 async function seed(page: Page, state: AppState) {
   await page.addInitScript((state) => {
     if (!localStorage.getItem('test-seeded')) {
@@ -206,7 +224,7 @@ test('arena pauses without committing a partial trial, then restarts and auto-ad
   await expect(page.locator('canvas')).toBeVisible();
   await page.clock.install();
   await page.getByRole('button', { name: 'Begin trial' }).click();
-  await page.clock.runFor(3500);
+  await advanceTrial(page, 3500);
   await page.keyboard.press('Escape');
   await expect(page.getByRole('heading', { name: 'Take your time.' })).toBeVisible();
   expect(
@@ -215,7 +233,7 @@ test('arena pauses without committing a partial trial, then restarts and auto-ad
     ),
   ).toBe(0);
   await page.getByRole('button', { name: 'Restart trial' }).click();
-  await page.clock.runFor(12400);
+  await advanceTrial(page, 12400);
   await expect(page.locator('.trainer-toolbar h3')).toHaveText('ADS tracking');
   expect(
     await page.evaluate(
@@ -290,7 +308,7 @@ test('snap trainer registers a hit and a miss and reports the measured result', 
   await page.getByRole('button', { name: 'Start practice' }).nth(2).click();
   await page.clock.install();
   await page.getByRole('button', { name: 'Begin trial' }).click();
-  await page.clock.runFor(2200);
+  await advanceTrial(page, 2200);
   const target = snapPosition(0, 779);
   await page.evaluate(({ yaw, pitch }) => {
     const move = new MouseEvent('mousemove');
@@ -302,7 +320,7 @@ test('snap trainer registers a hit and a miss and reports the measured result', 
     document.dispatchEvent(new MouseEvent('mousedown', { button: 0 }));
     document.dispatchEvent(new MouseEvent('mousedown', { button: 0 }));
   }, target);
-  await page.clock.runFor(31000);
+  await advanceTrial(page, 31000);
   await expect(page.getByText('PRACTICE COMPLETE', { exact: true })).toBeVisible();
   await expect(page.locator('.practice-numbers')).toContainText('50.0%');
   await expect(page.locator('.practice-numbers')).toContainText('1targets hit');

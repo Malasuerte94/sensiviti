@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { version as appVersion } from '../package.json';
 import {
   Activity,
   ArrowDownRight,
@@ -310,7 +311,7 @@ export function App() {
           <div className="local-footer">
             <span className="status-dot" />
             <span>LOCAL & OFFLINE</span>
-            <small>v1.0.0</small>
+            <small>v{appVersion}</small>
           </div>
         </div>
       </aside>
@@ -1106,7 +1107,7 @@ export function App() {
                       </span>
                       <div>
                         <h3>
-                          Sensiviti <span className="muted small">1.0.0</span>
+                          Sensiviti <span className="muted small">{appVersion}</span>
                         </h3>
                         <p>Find your feel. Built for mouse & keyboard.</p>
                       </div>

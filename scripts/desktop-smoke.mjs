@@ -4,6 +4,7 @@ import electronPath from 'electron';
 import { mkdtemp, readFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 const root = process.cwd();
+const { version } = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
 await mkdir(path.join(root, '.sensiviti-test'), { recursive: true });
 const profile = await mkdtemp(path.join(root, '.sensiviti-test', 'desktop-'));
 const env = { ...process.env, SENSIVITI_DATA_DIR: profile };
@@ -13,7 +14,7 @@ const packaged = process.argv.includes('--packaged');
 // application's Chromium endpoint instead of waiting for an inspector URL on the wrapper.
 async function launchPortable() {
   const child = spawn(
-    path.join(root, 'release', 'Sensiviti-1.0.0-portable.exe'),
+    path.join(root, 'release', `Sensiviti-${version}-portable.exe`),
     ['--remote-debugging-port=0'],
     { env, windowsHide: true, stdio: 'ignore' },
   );

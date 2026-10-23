@@ -87,4 +87,3 @@ jobs:
           fi
           gh release upload "$tag" --repo "$repo" Sensiviti-*-setup.exe Sensiviti-*-portable.exe SHA256SUMS.txt --clobber
           gh release edit "$tag" --repo "$repo" --notes-file RELEASE_NOTES.md --draft=false --latest
-
