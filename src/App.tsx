@@ -17,7 +17,6 @@ import {
   Layers3,
   LoaderCircle,
   Mouse,
-  Plus,
   RotateCcw,
   Settings2,
   ShieldCheck,
@@ -38,11 +37,19 @@ import {
   repeatRound,
   sessionProgress,
 } from './core/calibration';
-import { cm360, defaultSetup, displayAngular, gameIds, games } from './core/games';
+import {
+  cm360,
+  customGameProfile,
+  defaultSetup,
+  displayAngular,
+  gameIds,
+  games,
+} from './core/games';
 import { initialState } from './core/schema';
 import type {
   AppState,
   CalibrationSession,
+  CustomGame,
   GameId,
   SavedResult,
   Setup,
@@ -54,6 +61,7 @@ import { SetupWizard } from './components/SetupWizard';
 import { Trainer } from './components/Trainer';
 import { RoundReview } from './components/RoundReview';
 import { GameCard, StatCard } from './components/Common';
+import { GameLibrary } from './components/GameLibrary';
 
 type Page = 'home' | 'setup' | 'practice' | 'games' | 'history' | 'settings' | 'session' | 'result';
 const navItems = [
@@ -194,6 +202,7 @@ export function App() {
   const setup = data.setup ?? defaultSetup;
   const angular = active?.angular ?? games[setup.game].toAngular(setup.sensitivity);
   const resultDpi = active?.setup.dpi ?? setup.dpi;
+  const libraryCount = data.games.length + data.customGames.length;
   const session = data.pending;
   async function completeTrial(metrics: TrialMetrics) {
     const current = ref.current.pending;
@@ -274,7 +283,7 @@ export function App() {
               <item.icon size={18} />
               {item.label}
               {item.id === 'setup' && <span className="nav-new">PSA</span>}
-              {item.id === 'games' && <span className="nav-count">{data.games.length}</span>}
+              {item.id === 'games' && <span className="nav-count">{libraryCount}</span>}
             </button>
           ))}
         </nav>
@@ -504,7 +513,7 @@ export function App() {
                     />
                     <StatCard
                       label="Your game library"
-                      value={data.games.length.toString().padStart(2, '0')}
+                      value={libraryCount.toString().padStart(2, '0')}
                       unit="games"
                       detail="One feel. Across your favorites."
                       icon="game"
@@ -579,10 +588,21 @@ export function App() {
                     </button>
                   </div>
                   <div className="game-grid">
-                    {data.games.length ? (
-                      data.games.map((id) => (
-                        <GameCard key={id} id={id} angular={angular} dpi={resultDpi} compact />
-                      ))
+                    {libraryCount ? (
+                      <>
+                        {data.games.map((id) => (
+                          <GameCard key={id} id={id} angular={angular} dpi={resultDpi} compact />
+                        ))}
+                        {data.customGames.map((game) => (
+                          <GameCard
+                            key={game.id}
+                            profile={customGameProfile(game)}
+                            angular={angular}
+                            dpi={resultDpi}
+                            compact
+                          />
+                        ))}
+                      </>
                     ) : (
                       <div className="panel empty-state">
                         <p>Add a game to see your converted settings.</p>
@@ -692,6 +712,7 @@ export function App() {
                 <ResultView
                   session={viewedResult}
                   gameIds={data.games}
+                  customGames={data.customGames}
                   onSave={() => void safe(() => saveResult(viewedResult))}
                   onBack={() => navigate('home')}
                   saved={data.sessions.some((s) => s.id === viewedResult.id)}
@@ -875,39 +896,7 @@ export function App() {
                       {cm360(angular, resultDpi).toFixed(2)} CM/360
                     </span>
                   </div>
-                  <div className="game-library-controls">
-                    {gameIds.map((id) => (
-                      <button
-                        key={id}
-                        className={`button ${data.games.includes(id) ? 'secondary' : 'ghost'}`}
-                        onClick={() =>
-                          void safe(async () => {
-                            await update((s) => ({
-                              ...s,
-                              games: s.games.includes(id)
-                                ? s.games.filter((g) => g !== id)
-                                : [...s.games, id],
-                            }));
-                          })
-                        }
-                      >
-                        {data.games.includes(id) ? <Check size={15} /> : <Plus size={15} />}{' '}
-                        {games[id].name}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="game-grid library">
-                    {data.games.map((id) => (
-                      <GameCard key={id} id={id} angular={angular} dpi={resultDpi} />
-                    ))}
-                  </div>
-                  {data.games.length === 0 && (
-                    <div className="panel empty-state">
-                      <Gamepad2 size={35} />
-                      <h2>Make room for your favorites.</h2>
-                      <p>Select a game above to add its converted settings.</p>
-                    </div>
-                  )}
+                  <GameLibrary data={data} angular={angular} dpi={resultDpi} onChange={update} />
                   <div className="inline-note">
                     <SlidersHorizontal size={20} />
                     <p>
@@ -1215,12 +1204,14 @@ export function App() {
 function ResultView({
   session,
   gameIds: selectedGames,
+  customGames,
   onSave,
   onBack,
   saved,
 }: {
   session: CalibrationSession;
   gameIds: GameId[];
+  customGames: CustomGame[];
   onSave(): void;
   onBack(): void;
   saved: boolean;
@@ -1331,8 +1322,16 @@ function ResultView({
         </div>
       </div>
       <div className="game-grid">
-        {(selectedGames.length ? selectedGames : gameIds).map((id) => (
+        {(selectedGames.length || customGames.length ? selectedGames : gameIds).map((id) => (
           <GameCard key={id} id={id} angular={result.angular} dpi={session.setup.dpi} />
+        ))}
+        {customGames.map((game) => (
+          <GameCard
+            key={game.id}
+            profile={customGameProfile(game)}
+            angular={result.angular}
+            dpi={session.setup.dpi}
+          />
         ))}
       </div>
       <button className="button secondary round-toggle" onClick={() => setShowRounds((v) => !v)}>

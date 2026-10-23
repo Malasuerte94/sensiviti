@@ -24,11 +24,21 @@ Offline mouse-sensitivity calibration and 3D aim training for Windows x64.
 - **Sensiviti-${version}-portable.exe** — run without installation.
 - **SHA256SUMS.txt** — SHA-256 checksums for both executables.
 
+### New in 1.1.0
+
+- Expanded game library: 10 additional shooter presets, for 13 total.
+- Battlefield 6, PUBG, Modern Warfare (2019), Warzone, VALORANT, Overwatch 2, Fortnite, Rainbow Six Siege, Destiny 2, and THE FINALS.
+- Add, edit, and remove up to 100 custom games using an existing scale or measured cm/360 for linear scales.
+- Custom games appear on Overview and calibration results, persist across restarts, and are included in backups.
+- All 13 presets can be used as the calibration reference game.
+- Existing 1.0.0 profiles, saved results, and unfinished calibrations remain compatible.
+- Battlefield 6 and PUBG profiles show their approximate model assumptions; integer sliders show rounding differences.
+
 ### Included
 
 - Automatic seven-round PSA calibration with optional player overrides.
 - Smooth tracking, ADS tracking, and snap aiming, plus free practice.
-- CS2, Apex Legends, and Minecraft Java sensitivity conversions.
+- Hipfire sensitivity conversions for 13 presets and your custom library.
 - Saved results, session resume, and JSON backup import/export.
 - Automatic profile loading on every launch from %APPDATA%/Sensiviti/sensiviti.json. Installer and portable share this location.
 - Settings shows the saved-data path and can open its folder.

@@ -13,7 +13,16 @@ import {
   sessionProgress,
   trialScore,
 } from '../src/core/calibration';
-import { angularFromCm, cm360, convert, defaultSetup, gameIds, games } from '../src/core/games';
+import {
+  angularFromCm,
+  cm360,
+  convert,
+  convertProfile,
+  customGameProfile,
+  defaultSetup,
+  gameIds,
+  games,
+} from '../src/core/games';
 import {
   angularDistance,
   Measurement,
@@ -174,14 +183,51 @@ describe('game conversions', () => {
   });
   it('round-trips every game within its actual setting precision', () => {
     for (const id of gameIds) {
-      for (const s of id === 'minecraft' ? [0, 0.1, 0.5, 1] : [0.1, 1, 4]) {
+      const game = games[id];
+      for (const s of [game.min, (game.min + game.max) / 2, game.max]) {
         const a = games[id].toAngular(s);
         expect(games[id].fromAngular(a)).toBeCloseTo(s, 10);
         const c = convert(a, 800, id);
         expect(c.reachable).toBe(true);
-        expect(Math.abs(c.differenceCm)).toBeLessThan(0.0001);
+        expect(c.actualCm).toBeCloseTo(cm360(game.toAngular(c.rounded), 800), 10);
+        expect(Math.abs(c.rounded - s)).toBeLessThanOrEqual(0.5 * 10 ** -game.decimals + 1e-10);
       }
     }
+  });
+  it('provides 13 presets and known hipfire conversion anchors', () => {
+    expect(gameIds).toHaveLength(13);
+    expect(convert(0.022, 800, 'valorant').rounded).toBe(0.314);
+    expect(convert(0.022, 800, 'overwatch2').rounded).toBe(3.33);
+    expect(convert(0.022, 800, 'modernwarfare').rounded).toBe(3.33);
+    expect(convert(0.022, 800, 'warzone').rounded).toBe(3.33);
+    expect(convert(0.022, 800, 'fortnite').display).toBe('4%');
+    expect(convert(0.022, 800, 'siege').rounded).toBe(4);
+    expect(convert(0.022, 800, 'destiny2').rounded).toBe(3);
+    expect(convert(0.022, 800, 'thefinals').rounded).toBe(22);
+    expect(games.battlefield6.toAngular(0)).toBeCloseTo(0.0023149867, 9);
+    expect(convert(0.022, 800, 'battlefield6').rounded).toBe(11.3);
+    expect(games.pubg.toAngular(50)).toBeCloseTo(0.049995);
+    expect(convert(0.022, 800, 'pubg').rounded).toBe(32);
+    expect(convert(0.001, 800, 'pubg').reachable).toBe(false);
+    expect(convert(0.001, 800, 'battlefield6').reachable).toBe(false);
+  });
+  it('converts independent custom scales and measured DPI without losing nonlinear presets', () => {
+    const profile = customGameProfile({
+      id: crypto.randomUUID(),
+      name: 'My shooter',
+      scale: 'linear',
+      yaw: angularFromCm(40, 1600) / 2,
+    });
+    expect(convertProfile(angularFromCm(40, 1600), 1600, profile).rounded).toBe(2);
+    expect(convertProfile(angularFromCm(40, 800), 800, profile).rounded).toBe(4);
+    const pubg = customGameProfile({ id: crypto.randomUUID(), name: 'FPP profile', scale: 'pubg' });
+    expect(convertProfile(0.022, 800, pubg)).toEqual(convert(0.022, 800, 'pubg'));
+    const java = customGameProfile({
+      id: crypto.randomUUID(),
+      name: 'Java profile',
+      scale: 'minecraft',
+    });
+    expect(convertProfile(0.15, 800, java).command).toBe('mouseSensitivity:0.5');
   });
   it('uses the nonlinear Java curve and 0–200% display', () => {
     expect(games.minecraft.toAngular(0.5)).toBeCloseTo(0.15);
@@ -231,6 +277,38 @@ describe('metrics and deterministic simulation', () => {
   });
 });
 describe('input and backup validation', () => {
+  it('loads old v1 profiles and preserves expanded libraries on backup round trips', () => {
+    const { customGames: _, ...legacy } = {
+      ...initialState(),
+      setup: defaultSetup,
+      pending: createSession(defaultSetup),
+    };
+    expect(parseState(legacy)).toEqual({ ...legacy, customGames: [] });
+    const expanded = {
+      ...initialState(),
+      games: gameIds,
+      customGames: [
+        { id: crypto.randomUUID(), name: 'Custom one', scale: 'cs2' as const },
+        { id: crypto.randomUUID(), name: 'Custom two', scale: 'linear' as const, yaw: 0.03 },
+      ],
+    };
+    expect(parseState(JSON.parse(JSON.stringify(expanded)))).toEqual(expanded);
+  });
+  it('rejects invalid custom profiles and duplicate identities', () => {
+    const custom = { id: crypto.randomUUID(), name: 'My game', scale: 'linear', yaw: 0.022 };
+    for (const patch of [
+      { yaw: undefined },
+      { yaw: 0 },
+      { yaw: Infinity },
+      { name: '  ' },
+      { scale: 'unknown' },
+    ]) {
+      expect(() =>
+        parseState({ ...initialState(), customGames: [{ ...custom, ...patch }] }),
+      ).toThrow();
+    }
+    expect(() => parseState({ ...initialState(), customGames: [custom, custom] })).toThrow();
+  });
   it('accepts Java zero but rejects invalid DPI, NaN, invalid sensitivities, or ADS wider than hipfire', () => {
     expect(
       setupSchema.safeParse({ ...defaultSetup, game: 'minecraft', sensitivity: 0 }).success,

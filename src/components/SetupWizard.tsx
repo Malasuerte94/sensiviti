@@ -14,7 +14,7 @@ import {
   Timer,
   Zap,
 } from 'lucide-react';
-import { cm360, defaultSetup, gameIds, games } from '../core/games';
+import { cm360, convert, defaultSetup, gameIds, games } from '../core/games';
 import { setupSchema } from '../core/schema';
 import type { Setup } from '../core/types';
 
@@ -105,17 +105,22 @@ export function SetupWizard({
                       key={id}
                       className={`game-option ${setup.game === id ? 'selected' : ''}`}
                       onClick={() =>
-                        change({ game: id, sensitivity: id === 'minecraft' ? 0.5 : 1 })
+                        change({
+                          game: id,
+                          sensitivity: convert(
+                            games[setup.game].toAngular(
+                              Number.isFinite(setup.sensitivity) ? setup.sensitivity : 1,
+                            ),
+                            setup.dpi,
+                            id,
+                          ).rounded,
+                        })
                       }
                     >
-                      <span className={`game-mark ${id}`}>{games[id].shortName}</span>
-                      <strong>
-                        {id === 'cs2'
-                          ? 'Counter-Strike 2'
-                          : id === 'minecraft'
-                            ? 'Minecraft Java'
-                            : 'Apex Legends'}
-                      </strong>
+                      <span className={`game-mark ${id}`} style={{ color: games[id].color }}>
+                        {games[id].shortName}
+                      </span>
+                      <strong>{games[id].name}</strong>
                       <span className="radio">{setup.game === id && <i />}</span>
                     </button>
                   ))}
@@ -159,7 +164,7 @@ export function SetupWizard({
                         type="number"
                         min={games[setup.game].min}
                         max={setup.game === 'minecraft' ? 200 : games[setup.game].max}
-                        step={setup.game === 'minecraft' ? 1 : 0.05}
+                        step="any"
                         value={
                           Number.isNaN(setup.sensitivity)
                             ? ''
@@ -184,6 +189,9 @@ export function SetupWizard({
                         ? 'Java’s slider runs from 0% to 200%.'
                         : 'Use your current setting, or start with 1.0.'}
                     </p>
+                    {games[setup.game].note && (
+                      <p className="rounding-note">{games[setup.game].note}</p>
+                    )}
                   </div>
                 </div>
                 <div className="inline-note">

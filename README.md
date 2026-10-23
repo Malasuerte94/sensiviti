@@ -9,13 +9,15 @@ An offline Windows sensitivity finder and 3D aim trainer. Seven score-guided PSA
 
 ## Run the app
 
-Download **Sensiviti-1.0.0-setup.exe** for a guided installation, or **Sensiviti-1.0.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
+Download **Sensiviti-1.1.0-setup.exe** for a guided installation, or **Sensiviti-1.1.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
 
 Every launch automatically checks `%APPDATA%\Sensiviti\sensiviti.json` and loads your saved setup, active recommendation, session history, and unfinished calibration. The installer and portable app share the same profile. Updates and ordinary uninstallation preserve it. **Settings → Keep your progress** shows the exact file location and provides **Open saved-data folder**.
 
 Only a genuinely new profile opens the setup wizard. Select your reference game, mouse DPI, and starting sensitivity, then start calibration or save your setup and explore. A damaged profile produces a recovery screen; it is never silently overwritten with defaults.
 
-Calibration applies sensitivity inside the trainer. After saving your recommendation, copy settings from **My games** into CS2, Apex Legends, or Minecraft Java. The app does not change game files or system mouse settings.
+Calibration applies sensitivity inside the trainer. **My games** offers 13 presets: CS2, Apex Legends, Minecraft Java, Battlefield 6, PUBG, Modern Warfare (2019), Warzone, VALORANT, Overwatch 2, Fortnite, Rainbow Six Siege, Destiny 2, and THE FINALS. Select any combination for your library and copy settings into your games. The app does not change game files or system mouse settings.
+
+Use **Add custom game** to save up to 100 additional entries. Choose an existing sensitivity scale, or define a linear scale from your measured in-game sensitivity, mouse DPI, and cm/360. Custom entries can be edited or removed independently and appear on Overview and calibration results. Libraries are included in backups and loaded automatically. Existing 1.0.0 profiles retain their setup, results, and progress.
 
 **Controls:** click **Begin trial** to capture your mouse; **Esc** pauses and releases it. Track the moving capsule without clicking; in Snap aiming, left-click the spheres. Expired targets disappear after 2.5 seconds. The fullscreen control expands the desktop window.
 
@@ -64,6 +66,9 @@ cm/360 = 914.4 / (DPI × degreesPerCount)
 
 - CS2 and Apex hipfire profiles use `degreesPerCount = 0.022 × sensitivity` with standard, unmodified input settings. CS2's supported UI range is 0.0001–8; Apex's profile range is 0.01–20. CS2's console may accept a wider range than its UI profile.
 - Minecraft Java uses `degreesPerCount = 1.2 × (0.6 × s + 0.2)³` with `s` in 0–1. The UI displays `s × 200%`; precise `mouseSensitivity:s` is suitable for vanilla `options.txt` while the game is closed. Game mods may change the curve.
+- Added hipfire scales are based on the [Source2All converter's catalog](https://github.com/swiiftex/Source2AllSensitivityConverter/blob/main/Services/GameCatalog.cs): VALORANT 0.07, Overwatch 2 / modern CoD / Destiny 2 0.0066, Fortnite 0.005555 per percentage point, Siege 0.00572958 with default multiplier 0.02, and THE FINALS 0.001 degrees per count per sensitivity unit.
+- Battlefield 6 uses the approximate infantry-slider model `0.00173624 × (s + 4/3)`. PUBG uses the approximate FPP-at-FOV-90 model `0.002 × 10^(s/50) × 2.49975`. Both are community-derived, explicitly labeled in the app, and require an in-game full-turn check. PUBG at other FOVs or in third-person needs its own measured mapping. All presets support reference-game selection; the trainer FOV is independent of a game's required conversion settings.
+- Custom measured scales use `degreesPerCountPerUnit = 914.4 / (measurementDPI × measuredCm360 × measuredSensitivity)`. This assumes a linear scale and unchanged input/FOV settings. Use the matching preset for nonlinear scales. Slider precision and resulting turn-distance differences are shown on conversion cards.
 - Out-of-range conversions show the nearest supported value and its turn-distance difference. Display rounding is separated from internal calculations. ADS scope settings are not converted between games.
 - Hipfire FOV defaults to 90° horizontal at 16:9, ADS to 55°, and trainer ADS sensitivity to 0.5×. The vertical projection is derived from the reference aspect ratio; resizing preserves vertical FOV. These preferences stay fixed for a session.
 

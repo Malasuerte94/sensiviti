@@ -1,10 +1,22 @@
 import { z } from 'zod';
 import { games } from './games';
 import type { AppState } from './types';
+import { builtInGameIds } from './types';
 import { candidates, getTask, nextCenter } from './calibration';
 const finite = z.number().finite();
 const positive = finite.positive();
-const gameId = z.enum(['cs2', 'apex', 'minecraft']);
+const gameId = z.enum(builtInGameIds);
+export const customGameSchema = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string().trim().min(1).max(80),
+    scale: z.union([gameId, z.literal('linear')]),
+    yaw: positive.min(1e-9).max(360).optional(),
+  })
+  .refine(
+    (g) => g.scale !== 'linear' || g.yaw !== undefined,
+    'A measured sensitivity scale requires a valid turn-distance measurement',
+  );
 const drill = z.enum(['tracking', 'ads', 'snap']);
 const choice = z.enum(['lower', 'higher', 'keep']);
 export const setupSchema = z
@@ -81,7 +93,8 @@ export const stateSchema = z.object({
   version: z.literal(1),
   setup: setupSchema.nullable(),
   activeResultId: z.string().uuid().nullable(),
-  games: z.array(gameId).max(3),
+  games: z.array(gameId).max(builtInGameIds.length),
+  customGames: z.array(customGameSchema).max(100).default([]),
   sessions: z
     .array(
       z.object({
@@ -167,6 +180,7 @@ export function parseState(input: unknown): AppState {
   }
   if (
     new Set(state.games).size !== state.games.length ||
+    new Set(state.customGames.map((g) => g.id)).size !== state.customGames.length ||
     new Set(state.sessions.map((s) => s.id)).size !== state.sessions.length
   )
     invalid();
@@ -188,6 +202,7 @@ export const initialState = (): AppState => ({
   setup: null,
   activeResultId: null,
   games: ['cs2', 'apex', 'minecraft'],
+  customGames: [],
   sessions: [],
   pending: null,
 });

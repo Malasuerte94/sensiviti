@@ -1,4 +1,25 @@
-export type GameId = 'cs2' | 'apex' | 'minecraft';
+export const builtInGameIds = [
+  'cs2',
+  'apex',
+  'minecraft',
+  'battlefield6',
+  'pubg',
+  'modernwarfare',
+  'warzone',
+  'valorant',
+  'overwatch2',
+  'fortnite',
+  'siege',
+  'destiny2',
+  'thefinals',
+] as const;
+export type GameId = (typeof builtInGameIds)[number];
+export interface CustomGame {
+  id: string;
+  name: string;
+  scale: GameId | 'linear';
+  yaw?: number;
+}
 export type Drill = 'tracking' | 'ads' | 'snap';
 export type Candidate = 'lower' | 'higher' | 'original' | 'result' | 'warmup';
 export type Choice = 'lower' | 'higher' | 'keep';
@@ -79,6 +100,7 @@ export interface AppState {
   setup: Setup | null;
   activeResultId: string | null;
   games: GameId[];
+  customGames: CustomGame[];
   sessions: SavedResult[];
   pending: CalibrationSession | null;
 }

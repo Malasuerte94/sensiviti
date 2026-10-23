@@ -4,6 +4,7 @@ import { defaultSetup } from '../../src/core/games';
 import { initialState } from '../../src/core/schema';
 import { snapPosition } from '../../src/core/motion';
 import type { AppState, CalibrationSession } from '../../src/core/types';
+import { readFile } from 'node:fs/promises';
 test.beforeEach(async ({ page }) => {
   if (process.env.CI) {
     // Hosted Windows runners use CPU rasterization. Reduce only the backing
@@ -114,6 +115,104 @@ test('first-run setup, validation, persistence, navigation, and game library', a
   await page.getByRole('button', { name: 'Got it' }).click();
   expect(errors).toEqual([]);
 });
+test('expanded library, multiple custom games, editing, backups, and compact layout', async ({
+  page,
+}) => {
+  await seed(page, { ...initialState(), setup: defaultSetup });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'My games' }).click();
+  const added = [
+    'Battlefield 6',
+    'PUBG: BATTLEGROUNDS',
+    'Call of Duty: Modern Warfare (2019)',
+    'Call of Duty: Warzone',
+    'VALORANT',
+    'Overwatch 2',
+    'Fortnite',
+    'Rainbow Six Siege',
+    'Destiny 2',
+    'THE FINALS',
+  ];
+  for (const name of added) await page.getByRole('button', { name, exact: true }).click();
+  await expect(page.locator('.conversion-card')).toHaveCount(13);
+  await page.getByRole('button', { name: 'Add custom game', exact: true }).click();
+  await page.getByLabel('Game name', { exact: true }).fill('My custom shooter');
+  await page.getByLabel('Sensitivity scale', { exact: true }).selectOption('pubg');
+  await page.getByRole('button', { name: 'Add to library', exact: true }).click();
+  const preset = page
+    .locator('.conversion-card')
+    .filter({ has: page.getByRole('heading', { name: 'My custom shooter', exact: true }) });
+  await expect(preset.locator('.setting-code')).toHaveText('32');
+  await page.getByRole('button', { name: 'Add custom game', exact: true }).click();
+  await page.getByLabel('Game name', { exact: true }).fill('Measured shooter');
+  await page.getByLabel('Sensitivity scale', { exact: true }).selectOption('linear');
+  await page.getByLabel('Measured in-game sensitivity').fill('2');
+  await page.getByLabel('Measurement DPI').fill('1600');
+  await page.getByLabel('Measured cm/360', { exact: true }).fill('40');
+  await page.screenshot({ path: 'test-results/custom-game-form.png', fullPage: true });
+  await page.getByRole('button', { name: 'Add to library', exact: true }).click();
+  await expect(page.locator('.conversion-card')).toHaveCount(15);
+  const measured = page
+    .locator('.conversion-card')
+    .filter({ has: page.getByRole('heading', { name: 'Measured shooter', exact: true }) });
+  await expect(measured.locator('.setting-code')).toHaveText('3.079615');
+  await page.getByRole('button', { name: 'Edit My custom shooter', exact: true }).click();
+  await page.getByLabel('Game name', { exact: true }).fill('Renamed shooter');
+  await page.getByLabel('Sensitivity scale', { exact: true }).selectOption('valorant');
+  await page.getByRole('button', { name: 'Save custom game', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Renamed shooter', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.nav-count')).toHaveText('15');
+  await expect(page.getByRole('heading', { name: 'Renamed shooter', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export backup', exact: true }).click();
+  const download = await downloadEvent;
+  const backup = await readFile((await download.path())!, 'utf8');
+  expect(JSON.parse(backup).customGames).toHaveLength(2);
+  await page.getByRole('button', { name: 'My games' }).click();
+  await page.getByRole('button', { name: 'Remove Renamed shooter', exact: true }).click();
+  await expect(page.locator('.conversion-card')).toHaveCount(14);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const chooserEvent = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import backup', exact: true }).click();
+  await (
+    await chooserEvent
+  ).setFiles({
+    name: 'library-backup.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(backup),
+  });
+  await page.getByRole('dialog').getByRole('button', { name: 'Confirm', exact: true }).click();
+  await page.getByRole('button', { name: 'My games' }).click();
+  await expect(page.locator('.conversion-card')).toHaveCount(15);
+  await page.setViewportSize({ width: 1000, height: 760 });
+  await page.screenshot({ path: 'test-results/expanded-library.png', fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.getByRole('button', { name: 'Remove Measured shooter', exact: true }).click();
+  await page.reload();
+  await expect(page.locator('.nav-count')).toHaveText('14');
+});
+
+test('new presets can be selected as a calibration reference', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'BF6 Battlefield 6', exact: false }).click();
+  await expect(page.getByLabel('Starting sensitivity')).toHaveValue('11.3');
+  await expect(
+    page.getByText('Approximate community-measured infantry scale.', { exact: false }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+  await page.getByRole('button', { name: 'Save & explore', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Your aim, in focus' })).toBeVisible();
+  await page.reload();
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('sensiviti.v1')!).setup.game),
+  ).toBe('battlefield6');
+});
+
 test('raw input rejection blocks a trial and preserves resumable state', async ({ page }) => {
   await seed(page, { ...initialState(), setup: defaultSetup });
   await page.addInitScript(() => {
@@ -186,10 +285,20 @@ test('complete result saves, activates, restores, and exposes all seven comparis
   page,
 }) => {
   const session = completed();
-  await seed(page, { ...initialState(), setup: defaultSetup, pending: session });
+  await seed(page, {
+    ...initialState(),
+    setup: defaultSetup,
+    pending: session,
+    customGames: [
+      { id: 'c713ca89-9335-4409-856b-4cda7bbf9c87', name: 'Result custom game', scale: 'warzone' },
+    ],
+  });
   await page.goto('/');
   await page.getByRole('button', { name: 'View results' }).click();
   await expect(page.getByRole('heading', { name: 'Meet your next sensitivity.' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Result custom game', exact: true }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Show all seven comparisons' }).click();
   await expect(page.locator('.round-row')).toHaveCount(8);
   await page.screenshot({ path: 'test-results/result.png', fullPage: true });

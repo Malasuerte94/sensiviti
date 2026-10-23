@@ -46,6 +46,16 @@ while (completed.phase !== 'complete') {
 const fixture = {
   ...core.initialState(),
   setup: core.defaultSetup,
+  games: core.gameIds,
+  customGames: [
+    {
+      id: 'd713ca89-9335-4409-856b-4cda7bbf9c87',
+      name: 'My custom shooter',
+      scale: 'linear',
+      yaw: 0.022,
+    },
+    { id: 'e713ca89-9335-4409-856b-4cda7bbf9c87', name: 'My FPP profile', scale: 'pubg' },
+  ],
   activeResultId: completed.id,
   sessions: [
     {
@@ -127,6 +137,12 @@ const pending = {
   setup: core.defaultSetup,
   pending: core.createSession(core.defaultSetup),
 };
+// A profile written by 1.0.0 has no customGames field. Loading must not rewrite it.
+const { customGames: _customGames, ...legacy } = pending;
+await runCase('legacy-v1', Buffer.from(JSON.stringify(legacy)), async (page) => {
+  await expect(page.getByRole('button', { name: 'Resume session' })).toBeVisible();
+  expect((await page.evaluate(() => window.sensiviti.load())).customGames).toEqual([]);
+});
 await runCase('pending', Buffer.from(JSON.stringify(pending)), async (page) => {
   await expect(page.getByRole('button', { name: 'Resume session' })).toBeVisible();
 });

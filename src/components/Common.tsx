@@ -1,6 +1,6 @@
 import { Check, Copy, Crosshair, Gamepad2, Target, TrendingUp } from 'lucide-react';
-import { useState } from 'react';
-import { cm360, convert, games } from '../core/games';
+import { useState, type ReactNode } from 'react';
+import { cm360, convertProfile, games, type GameProfile } from '../core/games';
 import type { GameId } from '../core/types';
 
 export function CopyButton({ value, label = 'Copy setting' }: { value: string; label?: string }) {
@@ -28,28 +28,32 @@ export function CopyButton({ value, label = 'Copy setting' }: { value: string; l
 }
 export function GameCard({
   id,
+  profile,
   angular,
   dpi,
   compact = false,
-}: {
-  id: GameId;
+  actions,
+}: ({ id: GameId; profile?: never } | { id?: never; profile: GameProfile }) & {
   angular: number;
   dpi: number;
   compact?: boolean;
+  actions?: ReactNode;
 }) {
-  const game = games[id],
-    converted = convert(angular, dpi, id);
+  const game = profile ?? games[id!],
+    converted = convertProfile(angular, dpi, game);
   return (
     <article className={`panel conversion-card ${compact ? 'compact' : ''}`}>
       <div className="row between">
-        <span className={`game-mark ${id}`}>{game.shortName}</span>
-        <span className="small-tag">{id === 'minecraft' ? 'JAVA' : 'HIPFIRE'}</span>
+        <span className={`game-mark ${game.scale}`} style={{ color: game.color }}>
+          {game.shortName}
+        </span>
+        <span className="small-tag">{game.scale === 'minecraft' ? 'JAVA' : 'HIPFIRE'}</span>
       </div>
       <h3>{game.name}</h3>
       <p className="muted small">{game.category}</p>
       <div className="conversion-value">
         {converted.display}
-        <span>{id === 'minecraft' ? 'sensitivity' : 'in-game sens'}</span>
+        <span>{game.scale === 'minecraft' ? 'sensitivity' : 'in-game sens'}</span>
       </div>
       <div className="conversion-distance">
         <Crosshair size={14} />
@@ -62,12 +66,20 @@ export function GameCard({
           {converted.differenceCm.toFixed(2)} cm/360.
         </p>
       )}
-      {id === 'minecraft' && converted.reachable && (
+      {game.scale === 'minecraft' && converted.reachable && (
         <p className="rounding-note">Exact match uses options.txt; the slider is rounded.</p>
       )}
+      {converted.reachable && Math.abs(converted.differenceCm) > 0.01 && (
+        <p className="rounding-note">
+          Slider rounding changes the turn distance by {converted.differenceCm > 0 ? '+' : ''}
+          {converted.differenceCm.toFixed(2)} cm/360.
+        </p>
+      )}
       {!compact && <p className="game-instruction">{game.instruction}</p>}
+      {!compact && game.note && <p className="rounding-note">{game.note}</p>}
       <code className="setting-code">{converted.command}</code>
       <CopyButton value={converted.command} />
+      {actions && <div className="game-card-actions">{actions}</div>}
     </article>
   );
 }
