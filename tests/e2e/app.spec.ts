@@ -22,6 +22,13 @@ async function advanceTrial(page: Page, milliseconds: number) {
     await page.clock.fastForward(Math.min(200, milliseconds - elapsed));
   }
 }
+async function installPausedClock(page: Page) {
+  const start = Date.UTC(2026, 0, 1);
+  await page.clock.install({ time: start });
+  // No wall-clock time may leak between commands on slower hosted runners.
+  // Install while the drill/review is idle, then advance time explicitly.
+  await page.clock.pauseAt(start + 60000);
+}
 async function seed(page: Page, state: AppState) {
   await page.addInitScript((state) => {
     if (!localStorage.getItem('test-seeded')) {
@@ -167,9 +174,9 @@ test('review supports overrides, repeat, and automatic five-second progression',
   });
   await page.reload();
   await page.getByRole('button', { name: 'Resume session' }).click();
-  await page.clock.install();
+  await installPausedClock(page);
   await page.getByRole('button', { name: 'Resume timer' }).click();
-  await page.clock.runFor(5100);
+  await advanceTrial(page, 5500);
   await expect(page.getByRole('button', { name: 'Begin trial' })).toBeVisible();
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem('sensiviti.v1')!).pending.round),
@@ -222,7 +229,7 @@ test('arena pauses without committing a partial trial, then restarts and auto-ad
   await page.goto('/');
   await page.getByRole('button', { name: 'Resume session' }).click();
   await expect(page.locator('canvas')).toBeVisible();
-  await page.clock.install();
+  await installPausedClock(page);
   await page.getByRole('button', { name: 'Begin trial' }).click();
   await advanceTrial(page, 3500);
   await page.keyboard.press('Escape');
@@ -306,7 +313,7 @@ test('snap trainer registers a hit and a miss and reports the measured result', 
   await page.goto('/');
   await page.getByRole('button', { name: 'Practice range', exact: true }).click();
   await page.getByRole('button', { name: 'Start practice' }).nth(2).click();
-  await page.clock.install();
+  await installPausedClock(page);
   await page.getByRole('button', { name: 'Begin trial' }).click();
   await advanceTrial(page, 2200);
   const target = snapPosition(0, 779);
