@@ -39,12 +39,14 @@ import {
 } from './core/calibration';
 import {
   cm360,
+  convert,
   customGameProfile,
   defaultSetup,
   displayAngular,
   gameIds,
   games,
 } from './core/games';
+import { atDpi, currentProfile, sessionDpi, taskAtDpi } from './core/mouse';
 import { initialState } from './core/schema';
 import type {
   AppState,
@@ -62,6 +64,7 @@ import { Trainer } from './components/Trainer';
 import { RoundReview } from './components/RoundReview';
 import { GameCard, StatCard } from './components/Common';
 import { GameLibrary } from './components/GameLibrary';
+import { MouseSettings } from './components/MouseSettings';
 
 type Page = 'home' | 'setup' | 'practice' | 'games' | 'history' | 'settings' | 'session' | 'result';
 const navItems = [
@@ -125,7 +128,20 @@ export function App() {
   async function update(change: (state: AppState) => AppState) {
     const operation = queue.current.then(async () => {
       setSaving(true);
-      const next = change(ref.current);
+      const changed = change(ref.current);
+      const ids = new Set([
+        ...changed.sessions.map((s) => s.id),
+        ...(changed.pending ? [changed.pending.id] : []),
+      ]);
+      const next = {
+        ...changed,
+        mouseSettings: {
+          ...changed.mouseSettings,
+          sessionDpiOverrides: Object.fromEntries(
+            Object.entries(changed.mouseSettings.sessionDpiOverrides).filter(([id]) => ids.has(id)),
+          ),
+        },
+      };
       await storage.save(next);
       ref.current = next;
       setData(next);
@@ -153,7 +169,12 @@ export function App() {
   function startCalibration(setup: Setup) {
     const session = createSession(setup);
     const action = async () => {
-      await update((s) => ({ ...s, setup, pending: session }));
+      await update((s) => ({
+        ...s,
+        setup,
+        pending: session,
+        mouseSettings: { ...s.mouseSettings, dpi: setup.dpi },
+      }));
       setPage('session');
       setConfirmation(null);
     };
@@ -168,7 +189,12 @@ export function App() {
   }
   function saveSetup(setup: Setup) {
     const action = async () => {
-      await update((s) => ({ ...s, setup, pending: null }));
+      await update((s) => ({
+        ...s,
+        setup,
+        pending: null,
+        mouseSettings: { ...s.mouseSettings, dpi: setup.dpi },
+      }));
       setConfirmation(null);
       setPage('home');
       setNotice('Your setup is ready. Calibrate whenever you like.');
@@ -200,10 +226,14 @@ export function App() {
   }
   const active = data.sessions.find((r) => r.id === data.activeResultId);
   const setup = data.setup ?? defaultSetup;
-  const angular = active?.angular ?? games[setup.game].toAngular(setup.sensitivity);
-  const resultDpi = active?.setup.dpi ?? setup.dpi;
+  const profile = currentProfile(data);
+  const angular = profile.angular;
+  const resultDpi = profile.dpi;
   const libraryCount = data.games.length + data.customGames.length;
   const session = data.pending;
+  const sessionFactor = session ? sessionDpi(data, session) / resultDpi : 1;
+  const originalTask = session ? getTask(session) : null;
+  const trainerTask = session && originalTask ? taskAtDpi(data, session, originalTask) : null;
   async function completeTrial(metrics: TrialMetrics) {
     const current = ref.current.pending;
     if (!current) return;
@@ -340,10 +370,14 @@ export function App() {
               {saving ? 'Saving…' : 'On-device storage'}
             </span>
             <span className="divider" />
-            <span className="device-badge">
+            <button
+              className="device-badge"
+              title="Open mouse settings"
+              onClick={() => navigate('settings')}
+            >
               <Mouse size={15} />
-              {setup.dpi} <small>DPI</small>
-            </span>
+              {resultDpi} <small>DPI</small>
+            </button>
             <span className="avatar">P1</span>
           </div>
         </header>
@@ -381,7 +415,15 @@ export function App() {
               {page === 'setup' && (
                 <SetupWizard
                   key="calibration"
-                  initial={data.setup}
+                  initial={
+                    data.setup
+                      ? {
+                          ...(active?.setup ?? data.setup),
+                          dpi: resultDpi,
+                          sensitivity: convert(angular, resultDpi, profile.game).rounded,
+                        }
+                      : null
+                  }
                   configured={!!data.setup}
                   onStart={startCalibration}
                   onSave={saveSetup}
@@ -662,6 +704,7 @@ export function App() {
                       key={session.round}
                       review={session.review}
                       game={session.setup.game}
+                      angularScale={sessionFactor}
                       onCommit={(choice) =>
                         void safe(async () => {
                           await update((s) => ({
@@ -678,11 +721,11 @@ export function App() {
                       onExit={() => navigate('home')}
                     />
                   ) : (
-                    getTask(session) && (
+                    trainerTask && (
                       <Trainer
-                        key={getTask(session)!.key}
-                        task={getTask(session)!}
-                        setup={session.setup}
+                        key={`${trainerTask.key}:${resultDpi}:${sessionFactor}`}
+                        task={trainerTask}
+                        setup={{ ...session.setup, dpi: resultDpi }}
                         onComplete={(metrics) => void safe(() => completeTrial(metrics))}
                         onExit={() => navigate('home')}
                       />
@@ -713,6 +756,8 @@ export function App() {
                   session={viewedResult}
                   gameIds={data.games}
                   customGames={data.customGames}
+                  dpi={resultDpi}
+                  sourceDpi={sessionDpi(data, viewedResult)}
                   onSave={() => void safe(() => saveResult(viewedResult))}
                   onBack={() => navigate('home')}
                   saved={data.sessions.some((s) => s.id === viewedResult.id)}
@@ -734,7 +779,7 @@ export function App() {
                       </p>
                     </div>
                     <span className="pill">
-                      {displayAngular(angular, setup.game)} SENS · {resultDpi} DPI
+                      {displayAngular(angular, profile.game)} SENS · {resultDpi} DPI
                     </span>
                   </div>
                   {practice ? (
@@ -944,11 +989,19 @@ export function App() {
                         <div className="history-row" key={item.id}>
                           <span>
                             <strong>{date(item.createdAt)}</strong>
-                            <small>{item.setup.dpi} DPI · 7 rounds</small>
+                            <small>
+                              {sessionDpi(data, item.session)} DPI
+                              {sessionDpi(data, item.session) !== item.setup.dpi
+                                ? ' (corrected)'
+                                : ''}{' '}
+                              · 7 rounds
+                            </small>
                           </span>
                           <span>{games[item.setup.game].name}</span>
                           <strong>{displayAngular(item.angular, item.setup.game)}</strong>
-                          <span>{cm360(item.angular, item.setup.dpi).toFixed(2)} cm</span>
+                          <span>
+                            {cm360(item.angular, sessionDpi(data, item.session)).toFixed(2)} cm
+                          </span>
                           <span
                             className={`history-status ${item.id === data.activeResultId ? 'active' : ''}`}
                           >
@@ -1014,18 +1067,19 @@ export function App() {
                       OFFLINE FIRST
                     </span>
                   </div>
+                  <MouseSettings data={data} onChange={update} />
                   <div className="settings-grid">
                     <section className="panel settings-panel">
                       <span className="icon-box">
                         <Mouse size={21} />
                       </span>
-                      <h2>Mouse & trainer setup</h2>
+                      <h2>Calibration & trainer setup</h2>
                       <p>
-                        Reference game, mouse DPI, starting sensitivity, field of view, and the
-                        trainer’s ADS multiplier.
+                        Reference game, starting sensitivity, field of view, and the trainer’s ADS
+                        multiplier.
                       </p>
                       <div className="settings-values">
-                        <span>{setup.dpi} DPI</span>
+                        <span>{resultDpi} DPI</span>
                         <span>{setup.hipFov}° hipfire</span>
                         <span>{setup.adsFov}° ADS</span>
                         <span>{setup.adsMultiplier}× ADS</span>
@@ -1034,8 +1088,8 @@ export function App() {
                         Edit setup <ArrowRight size={15} />
                       </button>
                       <small>
-                        Changes require a fresh calibration. Saved recommendations keep their
-                        original DPI.
+                        Reference-game and trainer changes use a fresh calibration. Use Mouse
+                        settings above to update DPI without repeating a test.
                       </small>
                     </section>
                     <section className="panel settings-panel">
@@ -1205,6 +1259,8 @@ function ResultView({
   session,
   gameIds: selectedGames,
   customGames,
+  dpi,
+  sourceDpi,
   onSave,
   onBack,
   saved,
@@ -1212,11 +1268,14 @@ function ResultView({
   session: CalibrationSession;
   gameIds: GameId[];
   customGames: CustomGame[];
+  dpi: number;
+  sourceDpi: number;
   onSave(): void;
   onBack(): void;
   saved: boolean;
 }) {
   const result = session.result!;
+  const output = (value: number) => atDpi(value, sourceDpi, dpi);
   const [showRounds, setShowRounds] = useState(false);
   return (
     <>
@@ -1249,11 +1308,11 @@ function ResultView({
               : 'The calculated setting did not lead by 3%. Your original is the recommendation for now.'}
           </p>
           <div className="result-setting">
-            <strong>{displayAngular(result.angular, session.setup.game)}</strong>
+            <strong>{displayAngular(output(result.angular), session.setup.game)}</strong>
             <span>
               {games[session.setup.game].name}
               <br />
-              {session.setup.dpi} DPI · {cm360(result.angular, session.setup.dpi).toFixed(2)} cm/360
+              {dpi} DPI · {cm360(result.angular, sourceDpi).toFixed(2)} cm/360
             </span>
           </div>
           <button className="button primary" onClick={onSave}>
@@ -1265,11 +1324,11 @@ function ResultView({
           <span className="eyebrow">THE FINAL COMPARISON</span>
           <div>
             <span>Original sensitivity</span>
-            <strong>{displayAngular(session.original, session.setup.game)}</strong>
+            <strong>{displayAngular(output(session.original), session.setup.game)}</strong>
           </div>
           <div>
             <span>Calculated center</span>
-            <strong>{displayAngular(result.proposed, session.setup.game)}</strong>
+            <strong>{displayAngular(output(result.proposed), session.setup.game)}</strong>
           </div>
           <div>
             <span>Calculated advantage</span>
@@ -1318,19 +1377,22 @@ function ResultView({
       <div className="section-heading">
         <div>
           <h2>Take your settings with you</h2>
-          <p>Enter these values in your games at {session.setup.dpi} DPI.</p>
+          <p>
+            Enter these values in your games at your current {dpi} DPI. Turn distance is matched to
+            the test performed at {sourceDpi} DPI.
+          </p>
         </div>
       </div>
       <div className="game-grid">
         {(selectedGames.length || customGames.length ? selectedGames : gameIds).map((id) => (
-          <GameCard key={id} id={id} angular={result.angular} dpi={session.setup.dpi} />
+          <GameCard key={id} id={id} angular={output(result.angular)} dpi={dpi} />
         ))}
         {customGames.map((game) => (
           <GameCard
             key={game.id}
             profile={customGameProfile(game)}
-            angular={result.angular}
-            dpi={session.setup.dpi}
+            angular={output(result.angular)}
+            dpi={dpi}
           />
         ))}
       </div>
@@ -1350,9 +1412,9 @@ function ResultView({
           {session.decisions.map((r) => (
             <div className="round-row" key={r.round}>
               <span>0{r.round + 1}</span>
-              <span>{displayAngular(r.lower, session.setup.game)}</span>
-              <span>{displayAngular(r.center, session.setup.game)}</span>
-              <span>{displayAngular(r.higher, session.setup.game)}</span>
+              <span>{displayAngular(output(r.lower), session.setup.game)}</span>
+              <span>{displayAngular(output(r.center), session.setup.game)}</span>
+              <span>{displayAngular(output(r.higher), session.setup.game)}</span>
               <span>
                 {r.selected === 'keep' ? 'Keep center' : r.selected}
                 {r.overridden && ' · override'}

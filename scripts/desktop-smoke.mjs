@@ -56,6 +56,32 @@ try {
   await expect(page.getByRole('heading', { name: 'Your aim, in focus' })).toBeVisible();
   const state = JSON.parse(await readFile(path.join(profile, 'sensiviti.json'), 'utf8'));
   expect(state.setup.dpi).toBe(800);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.locator('summary').filter({ hasText: 'Estimate DPI with a ruler' }).click();
+  if (!packaged)
+    await desktop.evaluate(({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows()[0];
+      win.show();
+      win.focus();
+      win.webContents.focus();
+    });
+  await page.bringToFront();
+  await expect.poll(() => page.evaluate(() => document.hasFocus())).toBe(true);
+  await page.getByRole('button', { name: 'Start measurement', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => !!document.pointerLockElement)).toBe(true);
+  // Known counts validate the UI calculation; raw capture itself is genuinely native.
+  await page.evaluate(() =>
+    document.dispatchEvent(new MouseEvent('mousemove', { movementX: 6300, movementY: 0 })),
+  );
+  await page.keyboard.press('Space');
+  await expect(page.getByText('Estimated DPI: 1600', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Use estimated DPI', exact: true }).click();
+  await page.getByRole('button', { name: 'Update mouse DPI', exact: true }).click();
+  await page.reload();
+  await expect(page.locator('.device-badge')).toContainText('1600');
+  const mouseState = JSON.parse(await readFile(path.join(profile, 'sensiviti.json'), 'utf8'));
+  expect(mouseState.mouseSettings.dpi).toBe(1600);
+  expect(mouseState.setup.dpi).toBe(800);
   if (!packaged) {
     // Stub native dialog choices; IPC, validation, and file I/O remain real.
     const backupPath = path.join(profile, 'backup.json');
@@ -63,11 +89,13 @@ try {
       dialog.showSaveDialog = async () => ({ canceled: false, filePath: file });
     }, backupPath);
     expect(await page.evaluate(() => window.sensiviti.exportBackup())).toBe(true);
-    expect(JSON.parse(await readFile(backupPath, 'utf8')).setup.dpi).toBe(800);
+    expect(JSON.parse(await readFile(backupPath, 'utf8')).mouseSettings.dpi).toBe(1600);
     await desktop.evaluate(({ dialog }, file) => {
       dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [file] });
     }, backupPath);
-    expect((await page.evaluate(() => window.sensiviti.importBackup())).setup.dpi).toBe(800);
+    expect((await page.evaluate(() => window.sensiviti.importBackup())).mouseSettings.dpi).toBe(
+      1600,
+    );
   }
   await page.getByRole('button', { name: 'Practice range', exact: true }).click();
   await page.getByRole('button', { name: 'Start practice' }).first().click();
@@ -103,7 +131,7 @@ try {
   expect(await page.evaluate(() => typeof window.process)).toBe('undefined');
   expect(errors).toEqual([]);
   console.log(
-    `${packaged ? 'Portable executable' : 'Desktop'} smoke passed: native IPC persistence, offline renderer, Three.js, real unadjusted pointer lock, and pause.${packaged ? '' : ' Native export/import and sandbox also verified.'}`,
+    `${packaged ? 'Portable executable' : 'Desktop'} smoke passed: mouse DPI settings, native raw-input measurement, IPC persistence, offline renderer, Three.js, real unadjusted pointer lock, and pause.${packaged ? '' : ' Native export/import and sandbox also verified.'}`,
   );
 } catch (error) {
   const page = await desktop.firstWindow();

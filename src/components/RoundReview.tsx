@@ -15,12 +15,14 @@ import type { Choice, GameId, RoundDecision } from '../core/types';
 export function RoundReview({
   review,
   game,
+  angularScale = 1,
   onCommit,
   onRepeat,
   onExit,
 }: {
   review: RoundDecision;
   game: GameId;
+  angularScale?: number;
   onCommit(choice: Choice): void;
   onRepeat(): void;
   onExit(): void;
@@ -102,7 +104,10 @@ export function RoundReview({
               <Icon size={22} />
               <span>{option === 'keep' ? 'Keep center' : `${option} sensitivity`}</span>
               <strong>
-                {displayAngular(option === 'keep' ? review.center : review[option], game)}
+                {displayAngular(
+                  (option === 'keep' ? review.center : review[option]) * angularScale,
+                  game,
+                )}
               </strong>
               <small>
                 <kbd>{i + 1}</kbd> {review.choice === option ? 'APP CHOICE' : 'OVERRIDE'}

@@ -1,0 +1,1227 @@
+{
+  "version": 1,
+  "setup": {
+    "dpi": 800,
+    "game": "cs2",
+    "sensitivity": 1,
+    "hipFov": 90,
+    "adsFov": 55,
+    "adsMultiplier": 0.5
+  },
+  "activeResultId": "1713ca89-9335-4409-856b-4cda7bbf9c87",
+  "games": ["cs2", "apex", "minecraft"],
+  "sessions": [
+    {
+      "id": "1713ca89-9335-4409-856b-4cda7bbf9c87",
+      "createdAt": "2026-10-23T10:00:00.000Z",
+      "angular": 0.056160070312500004,
+      "setup": {
+        "dpi": 800,
+        "game": "cs2",
+        "sensitivity": 1,
+        "hipFov": 90,
+        "adsFov": 55,
+        "adsMultiplier": 0.5
+      },
+      "validated": true,
+      "session": {
+        "id": "1713ca89-9335-4409-856b-4cda7bbf9c87",
+        "createdAt": "2026-10-23T10:00:00.000Z",
+        "setup": {
+          "dpi": 800,
+          "game": "cs2",
+          "sensitivity": 1,
+          "hipFov": 90,
+          "adsFov": 55,
+          "adsMultiplier": 0.5
+        },
+        "original": 0.022,
+        "center": 0.056160070312500004,
+        "phase": "complete",
+        "round": 7,
+        "trials": [
+          {
+            "key": "warmup-tracking",
+            "drill": "tracking",
+            "candidate": "warmup",
+            "angular": 0.022,
+            "seed": 103,
+            "duration": 10,
+            "attempt": 0,
+            "metrics": {
+              "duration": 10,
+              "onTargetSeconds": 4,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "warmup-ads",
+            "drill": "ads",
+            "candidate": "warmup",
+            "angular": 0.022,
+            "seed": 104,
+            "duration": 10,
+            "attempt": 0,
+            "metrics": {
+              "duration": 10,
+              "onTargetSeconds": 4,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "warmup-snap",
+            "drill": "snap",
+            "candidate": "warmup",
+            "angular": 0.022,
+            "seed": 105,
+            "duration": 10,
+            "attempt": 0,
+            "metrics": {
+              "duration": 10,
+              "onTargetSeconds": 4,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "0-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.011,
+            "seed": 1000,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "0-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.011,
+            "seed": 1001,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "0-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.011,
+            "seed": 1002,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "0-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.033,
+            "seed": 1000,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "0-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.033,
+            "seed": 1001,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "0-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.033,
+            "seed": 1002,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "1-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.04125,
+            "seed": 1100,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "1-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.04125,
+            "seed": 1101,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "1-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.04125,
+            "seed": 1102,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "1-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.01375,
+            "seed": 1100,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "1-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.01375,
+            "seed": 1101,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "1-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.01375,
+            "seed": 1102,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "2-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.020625,
+            "seed": 1200,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "2-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.020625,
+            "seed": 1201,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "2-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.020625,
+            "seed": 1202,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "2-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.048125,
+            "seed": 1200,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "2-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.048125,
+            "seed": 1201,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "2-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.048125,
+            "seed": 1202,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "3-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.053625000000000006,
+            "seed": 1300,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "3-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.053625000000000006,
+            "seed": 1301,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "3-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.053625000000000006,
+            "seed": 1302,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "3-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.028874999999999998,
+            "seed": 1300,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "3-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.028874999999999998,
+            "seed": 1301,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "3-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.028874999999999998,
+            "seed": 1302,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "4-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.03795000000000001,
+            "seed": 1400,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "4-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.03795000000000001,
+            "seed": 1401,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "4-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.03795000000000001,
+            "seed": 1402,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "4-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.056925,
+            "seed": 1400,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "4-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.056925,
+            "seed": 1401,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "4-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.056925,
+            "seed": 1402,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "5-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.05739937500000001,
+            "seed": 1500,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "5-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.05739937500000001,
+            "seed": 1501,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "5-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.05739937500000001,
+            "seed": 1502,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "5-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.04696312500000001,
+            "seed": 1500,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "5-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.04696312500000001,
+            "seed": 1501,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "5-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.04696312500000001,
+            "seed": 1502,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "6-0-lower-tracking",
+            "drill": "tracking",
+            "candidate": "lower",
+            "angular": 0.052050796875000006,
+            "seed": 1600,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "6-0-lower-ads",
+            "drill": "ads",
+            "candidate": "lower",
+            "angular": 0.052050796875000006,
+            "seed": 1601,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "6-0-lower-snap",
+            "drill": "snap",
+            "candidate": "lower",
+            "angular": 0.052050796875000006,
+            "seed": 1602,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "6-0-higher-tracking",
+            "drill": "tracking",
+            "candidate": "higher",
+            "angular": 0.05752982812500001,
+            "seed": 1600,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "6-0-higher-ads",
+            "drill": "ads",
+            "candidate": "higher",
+            "angular": 0.05752982812500001,
+            "seed": 1601,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "6-0-higher-snap",
+            "drill": "snap",
+            "candidate": "higher",
+            "angular": 0.05752982812500001,
+            "seed": 1602,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "validation-0-original-tracking",
+            "drill": "tracking",
+            "candidate": "original",
+            "angular": 0.022,
+            "seed": 1900,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "validation-0-original-ads",
+            "drill": "ads",
+            "candidate": "original",
+            "angular": 0.022,
+            "seed": 1901,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "validation-0-original-snap",
+            "drill": "snap",
+            "candidate": "original",
+            "angular": 0.022,
+            "seed": 1902,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 6,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.4
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "validation-0-result-tracking",
+            "drill": "tracking",
+            "candidate": "result",
+            "angular": 0.056160070312500004,
+            "seed": 1900,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "validation-0-result-ads",
+            "drill": "ads",
+            "candidate": "result",
+            "angular": 0.056160070312500004,
+            "seed": 1901,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          },
+          {
+            "key": "validation-0-result-snap",
+            "drill": "snap",
+            "candidate": "result",
+            "angular": 0.056160070312500004,
+            "seed": 1902,
+            "duration": 15,
+            "attempt": 0,
+            "metrics": {
+              "duration": 15,
+              "onTargetSeconds": 12,
+              "meanAngularError": 2,
+              "shots": 10,
+              "hits": 5,
+              "acquisitionTimes": [0.5],
+              "score": 0.8
+            },
+            "completedAt": "2026-10-23T10:00:00.000Z"
+          }
+        ],
+        "decisions": [
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.011,
+            "higher": 0.033,
+            "center": 0.022,
+            "round": 0,
+            "selected": "higher",
+            "overridden": false
+          },
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.01375,
+            "higher": 0.04125,
+            "center": 0.0275,
+            "round": 1,
+            "selected": "higher",
+            "overridden": false
+          },
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.020625,
+            "higher": 0.048125,
+            "center": 0.034375,
+            "round": 2,
+            "selected": "higher",
+            "overridden": false
+          },
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.028874999999999998,
+            "higher": 0.053625000000000006,
+            "center": 0.04125,
+            "round": 3,
+            "selected": "higher",
+            "overridden": false
+          },
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.03795000000000001,
+            "higher": 0.056925,
+            "center": 0.04743750000000001,
+            "round": 4,
+            "selected": "higher",
+            "overridden": false
+          },
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.04696312500000001,
+            "higher": 0.05739937500000001,
+            "center": 0.052181250000000005,
+            "round": 5,
+            "selected": "higher",
+            "overridden": false
+          },
+          {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false,
+            "lower": 0.052050796875000006,
+            "higher": 0.05752982812500001,
+            "center": 0.05479031250000001,
+            "round": 6,
+            "selected": "higher",
+            "overridden": false
+          }
+        ],
+        "review": null,
+        "result": {
+          "angular": 0.056160070312500004,
+          "proposed": 0.056160070312500004,
+          "validated": true,
+          "comparison": {
+            "advantage": 0.5,
+            "lowerScores": {
+              "tracking": 0.4,
+              "ads": 0.4,
+              "snap": 0.4
+            },
+            "higherScores": {
+              "tracking": 0.8,
+              "ads": 0.8,
+              "snap": 0.8
+            },
+            "choice": "higher",
+            "tied": false
+          },
+          "saved": true
+        }
+      }
+    }
+  ],
+  "pending": {
+    "id": "2713ca89-9335-4409-856b-4cda7bbf9c87",
+    "createdAt": "2026-10-23T10:00:00.000Z",
+    "setup": {
+      "dpi": 1600,
+      "game": "cs2",
+      "sensitivity": 1,
+      "hipFov": 90,
+      "adsFov": 55,
+      "adsMultiplier": 0.5
+    },
+    "original": 0.022,
+    "center": 0.022,
+    "phase": "warmup",
+    "round": 0,
+    "trials": [
+      {
+        "key": "warmup-tracking",
+        "drill": "tracking",
+        "candidate": "warmup",
+        "angular": 0.022,
+        "seed": 103,
+        "duration": 10,
+        "attempt": 0,
+        "metrics": {
+          "duration": 10,
+          "onTargetSeconds": 5,
+          "meanAngularError": 2,
+          "shots": 10,
+          "hits": 5,
+          "acquisitionTimes": [0.5],
+          "score": 0.5
+        },
+        "completedAt": "2026-10-23T10:00:00.000Z"
+      }
+    ],
+    "decisions": [],
+    "review": null,
+    "result": null
+  }
+}

@@ -12,6 +12,10 @@ and include regression tests for changes to calculations or persistence. Do not 
 real player profiles, exported backups, credentials, test captures, or built executables.
 Use reproducible sample data in tests. Contributions are provided under the MIT license.
 
+The permanent compatibility requirements are in [AGENTS.md](AGENTS.md). Keep existing
+`tests/fixtures/profiles/` snapshots immutable and test every released storage format.
+Add a synthetic snapshot when introducing a new persisted format or additive fields.
+
 ## Publishing a release
 
 1. Update `version` in `package.json` and the lockfile together.

@@ -101,8 +101,13 @@ export interface AppState {
   activeResultId: string | null;
   games: GameId[];
   customGames: CustomGame[];
+  mouseSettings: MouseSettings;
   sessions: SavedResult[];
   pending: CalibrationSession | null;
+}
+export interface MouseSettings {
+  dpi: number | null;
+  sessionDpiOverrides: Record<string, number>;
 }
 export interface DesktopAPI {
   profileInfo(): Promise<{ directory: string; file: string }>;

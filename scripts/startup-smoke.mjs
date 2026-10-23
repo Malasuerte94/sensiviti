@@ -107,6 +107,16 @@ async function runCase(name, bytes, inspect) {
 await runCase('missing', null, async (page) => {
   await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();
 });
+for (const version of ['1.0.0', '1.1.0', '1.2.0']) {
+  const bytes = await readFile(path.join(root, `tests/fixtures/profiles/v${version}.json`));
+  const expected = core.parseState(JSON.parse(bytes.toString()));
+  await runCase(`released-${version}`, bytes, async (page) => {
+    await expect(page.getByRole('heading', { name: 'Your aim, in focus' })).toBeVisible();
+    expect(await page.evaluate(() => window.sensiviti.load())).toEqual(expected);
+    await page.getByRole('button', { name: 'Resume session' }).click();
+    await expect(page.getByRole('button', { name: 'Begin trial' })).toBeVisible();
+  });
+}
 const validBytes = originalBytes ?? Buffer.from(JSON.stringify(fixture));
 const expected = core.parseState(JSON.parse(validBytes.toString()));
 const valid = await runCase('saved', validBytes, async (page) => {
@@ -153,5 +163,5 @@ await runCase('corrupt', Buffer.from('{incomplete json'), async (page) => {
 });
 if (existing) expect(hash(await readFile(existing))).toBe(hash(originalBytes));
 console.log(
-  `Startup smoke passed: default path, saved profile, real process restart, resumable session, first run, and corrupt-file preservation.${existing ? ' Existing user profile validated on an isolated copy; original unchanged.' : ''}`,
+  `Startup smoke passed: default path, released-format compatibility (1.0.0/1.1.0/1.2.0), saved profile, real process restart, resumable session, first run, and corrupt-file preservation.${existing ? ' Existing user profile validated on an isolated copy; original unchanged.' : ''}`,
 );

@@ -5,6 +5,11 @@ import { builtInGameIds } from './types';
 import { candidates, getTask, nextCenter } from './calibration';
 const finite = z.number().finite();
 const positive = finite.positive();
+export const dpiSchema = z.number().int().min(100).max(64000);
+export const mouseSettingsSchema = z.object({
+  dpi: dpiSchema.nullable().default(null),
+  sessionDpiOverrides: z.record(z.string().uuid(), dpiSchema).default({}),
+});
 const gameId = z.enum(builtInGameIds);
 export const customGameSchema = z
   .object({
@@ -21,7 +26,7 @@ const drill = z.enum(['tracking', 'ads', 'snap']);
 const choice = z.enum(['lower', 'higher', 'keep']);
 export const setupSchema = z
   .object({
-    dpi: z.number().int().min(100).max(64000),
+    dpi: dpiSchema,
     game: gameId,
     sensitivity: finite.min(0),
     hipFov: finite.min(60).max(130),
@@ -95,6 +100,7 @@ export const stateSchema = z.object({
   activeResultId: z.string().uuid().nullable(),
   games: z.array(gameId).max(builtInGameIds.length),
   customGames: z.array(customGameSchema).max(100).default([]),
+  mouseSettings: mouseSettingsSchema.default({ dpi: null, sessionDpiOverrides: {} }),
   sessions: z
     .array(
       z.object({
@@ -203,6 +209,7 @@ export const initialState = (): AppState => ({
   activeResultId: null,
   games: ['cs2', 'apex', 'minecraft'],
   customGames: [],
+  mouseSettings: { dpi: null, sessionDpiOverrides: {} },
   sessions: [],
   pending: null,
 });

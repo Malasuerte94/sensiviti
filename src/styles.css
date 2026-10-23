@@ -1156,7 +1156,9 @@ main {
   font-size: 8px;
 }
 .custom-game-form input,
-.custom-game-form select {
+.custom-game-form select,
+.mouse-settings input:not([type='checkbox']),
+.mouse-settings select {
   width: 100%;
   min-width: 0;
   border: 1px solid #34414b;
@@ -1167,6 +1169,66 @@ main {
   font:
     13px 'DM Sans',
     sans-serif;
+}
+.mouse-settings {
+  margin-bottom: 24px;
+}
+.mouse-settings .field-label {
+  margin-top: 18px;
+}
+.mouse-settings .chips {
+  max-width: 500px;
+}
+.dpi-input-row,
+.dpi-estimate-result {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.dpi-input-row > input {
+  max-width: 250px;
+}
+.dpi-preview {
+  color: #a7ccc7;
+}
+.dpi-details {
+  border-top: 1px solid #293944;
+  padding: 18px 0 0;
+  margin-top: 20px;
+}
+.dpi-details summary {
+  cursor: pointer;
+  color: #b4d4cf;
+}
+.dpi-measurement p,
+.dpi-correction p {
+  max-width: 820px;
+  color: #87949e;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.dpi-estimate-result {
+  margin: 16px 0;
+  align-items: center;
+}
+.dpi-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+}
+.dpi-correction select {
+  max-width: 700px;
+}
+.dpi-correction > input {
+  max-width: 250px;
+  display: block;
+}
+button.device-badge {
+  background: transparent;
+  border: 0;
+  padding: 6px;
 }
 .measurement-fields {
   display: grid;

@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { createSession, commitDecision, getTask, recordTrial } from '../../src/core/calibration';
 import { defaultSetup } from '../../src/core/games';
-import { initialState } from '../../src/core/schema';
+import { initialState, parseState } from '../../src/core/schema';
+import legacyProfile from '../fixtures/profiles/v1.1.0.json' with { type: 'json' };
 import { snapPosition } from '../../src/core/motion';
 import type { AppState, CalibrationSession } from '../../src/core/types';
 import { readFile } from 'node:fs/promises';
@@ -194,6 +195,182 @@ test('expanded library, multiple custom games, editing, backups, and compact lay
   await page.getByRole('button', { name: 'Remove Measured shooter', exact: true }).click();
   await page.reload();
   await expect(page.locator('.nav-count')).toHaveText('14');
+});
+
+test('mouse DPI changes preserve turn distance, custom games, practice, and backups', async ({
+  page,
+}) => {
+  const state = {
+    ...initialState(),
+    setup: defaultSetup,
+    customGames: [
+      {
+        id: 'a713ca89-9335-4409-856b-4cda7bbf9c87',
+        name: 'DPI custom game',
+        scale: 'cs2' as const,
+      },
+    ],
+  };
+  await seed(page, state);
+  await page.goto('/');
+  await page.getByTitle('Open mouse settings', { exact: true }).click();
+  await page.getByLabel('Current mouse DPI', { exact: true }).fill('1600');
+  await page.getByRole('button', { name: 'Update mouse DPI', exact: true }).click();
+  await expect(page.locator('.device-badge')).toContainText('1600');
+  await page.getByRole('button', { name: 'My games' }).click();
+  const cs2 = page
+    .locator('.conversion-card')
+    .filter({ has: page.getByRole('heading', { name: 'Counter-Strike 2', exact: true }) });
+  await expect(cs2.locator('.setting-code')).toHaveText('sensitivity 0.5');
+  await expect(cs2.locator('.conversion-distance')).toContainText('51.95 cm/360');
+  const custom = page
+    .locator('.conversion-card')
+    .filter({ has: page.getByRole('heading', { name: 'DPI custom game', exact: true }) });
+  await expect(custom.locator('.setting-code')).toHaveText('sensitivity 0.5');
+  await page.getByRole('button', { name: 'Practice range' }).click();
+  await expect(page.getByText('0.5 SENS · 1600 DPI', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.device-badge')).toContainText('1600');
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('sensiviti.v1')!).setup),
+  ).toEqual(state.setup);
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export backup', exact: true }).click();
+  const backup = await readFile((await (await downloadEvent).path())!, 'utf8');
+  expect(JSON.parse(backup).mouseSettings.dpi).toBe(1600);
+  await page.getByLabel('Current mouse DPI', { exact: true }).fill('800');
+  await page.getByRole('button', { name: 'Update mouse DPI', exact: true }).click();
+  const chooserEvent = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import backup', exact: true }).click();
+  await (
+    await chooserEvent
+  ).setFiles({
+    name: 'mouse-backup.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(backup),
+  });
+  await page.getByRole('button', { name: 'Confirm', exact: true }).click();
+  await expect(page.locator('.device-badge')).toContainText('1600');
+});
+
+test('incorrect recorded DPI is corrected separately from immutable saved tests', async ({
+  page,
+}) => {
+  const state = parseState(legacyProfile);
+  await seed(page, state);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByText('Correct a test’s recorded DPI', { exact: true }).click();
+  await page.getByLabel('Actual DPI used during this test').fill('1600');
+  await page.getByRole('button', { name: 'Correct test DPI', exact: true }).click();
+  await expect(page.locator('.device-badge')).toContainText('1600');
+  let stored = await page.evaluate(() => JSON.parse(localStorage.getItem('sensiviti.v1')!));
+  expect(stored.sessions).toEqual(legacyProfile.sessions);
+  expect(stored.pending).toEqual(legacyProfile.pending);
+  expect(stored.mouseSettings.sessionDpiOverrides[state.activeResultId!]).toBe(1600);
+  await page.getByRole('button', { name: 'Session history' }).click();
+  await expect(page.getByText('1600 DPI (corrected) · 7 rounds', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Review', exact: false }).click();
+  await expect(page.locator('.result-setting')).toContainText('1600 DPI');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByLabel('Current mouse DPI', { exact: true }).fill('800');
+  await page.getByRole('button', { name: 'Update mouse DPI', exact: true }).click();
+  await page.getByText('Correct a test’s recorded DPI', { exact: true }).click();
+  await page.getByLabel('Actual DPI used during this test').fill('1200');
+  await page.getByLabel('Also use this as my current mouse DPI').uncheck();
+  await page.getByRole('button', { name: 'Correct test DPI', exact: true }).click();
+  await expect(page.locator('.device-badge')).toContainText('800');
+  await page.reload();
+  stored = await page.evaluate(() => JSON.parse(localStorage.getItem('sensiviti.v1')!));
+  expect(stored.mouseSettings).toEqual({
+    dpi: 800,
+    sessionDpiOverrides: { [state.activeResultId!]: 1200 },
+  });
+  expect(stored.sessions).toEqual(legacyProfile.sessions);
+});
+
+test('resuming calibration after a DPI update converts playback without erasing progress', async ({
+  page,
+}) => {
+  const pending = toReview();
+  await seed(page, { ...initialState(), setup: defaultSetup, pending });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByLabel('Current mouse DPI', { exact: true }).fill('1600');
+  await page.getByRole('button', { name: 'Update mouse DPI', exact: true }).click();
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('sensiviti.v1')!).pending),
+  ).toEqual(pending);
+  await page.getByRole('button', { name: 'Overview', exact: true }).click();
+  await page.getByRole('button', { name: 'Resume session', exact: true }).click();
+  await expect(page.locator('.choice-card strong')).toHaveText(['0.25', '0.5', '0.75']);
+  await page.getByRole('button', { name: 'Continue', exact: false }).last().click();
+  await expect(page.getByText('higher sensitivity · 0.9375', { exact: true })).toBeVisible();
+  const stored = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('sensiviti.v1')!).pending,
+  );
+  expect(stored.setup).toEqual(pending.setup);
+  expect(stored.trials).toEqual(pending.trials);
+});
+
+test('DPI ruler measurement requests raw input and only applies a measured estimate explicitly', async ({
+  page,
+}) => {
+  // Headless Chromium cannot grant unadjusted input on Windows. Exercise the UI
+  // contract here; desktop-smoke verifies the real native request in Electron.
+  await page.addInitScript(() => {
+    let locked: Element | null = null;
+    Object.defineProperty(document, 'pointerLockElement', {
+      configurable: true,
+      get: () => locked,
+    });
+    HTMLElement.prototype.requestPointerLock = async function (options) {
+      if (!options?.unadjustedMovement) throw new Error('DPI measurement must require raw input');
+      locked = this;
+      document.dispatchEvent(new Event('pointerlockchange'));
+    };
+    document.exitPointerLock = () => {
+      locked = null;
+      document.dispatchEvent(new Event('pointerlockchange'));
+    };
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Escape') document.exitPointerLock();
+    });
+  });
+  await seed(page, { ...initialState(), setup: defaultSetup });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.locator('summary').filter({ hasText: 'Estimate DPI with a ruler' }).click();
+  await page.getByRole('button', { name: 'Start measurement', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => !!document.pointerLockElement)).toBe(true);
+  await page.evaluate(() =>
+    document.dispatchEvent(new MouseEvent('mousemove', { movementX: 6300, movementY: 0 })),
+  );
+  await page.keyboard.press('Space');
+  await expect(page.getByText('Estimated DPI: 1600', { exact: true })).toBeVisible();
+  await expect(page.getByLabel('Current mouse DPI', { exact: true })).toHaveValue('800');
+  await page.getByRole('button', { name: 'Use estimated DPI', exact: true }).click();
+  await expect(page.getByLabel('Current mouse DPI', { exact: true })).toHaveValue('1600');
+  await expect(page.locator('.device-badge')).toContainText('800');
+  await page.getByRole('button', { name: 'Update mouse DPI', exact: true }).click();
+  await expect(page.locator('.device-badge')).toContainText('1600');
+  await page.setViewportSize({ width: 1000, height: 760 });
+  await page.screenshot({ path: 'test-results/mouse-settings.png', fullPage: true });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+  await page.getByRole('button', { name: 'Start measurement', exact: true }).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('alert')).toContainText('cancelled');
+  await expect(page.locator('.device-badge')).toContainText('1600');
+  await page.evaluate(() => {
+    HTMLElement.prototype.requestPointerLock = () =>
+      Promise.reject(new DOMException('Unavailable', 'NotSupportedError'));
+  });
+  await page.getByRole('button', { name: 'Start measurement', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Raw mouse input could not be captured');
+  await expect(page.locator('.device-badge')).toContainText('1600');
 });
 
 test('new presets can be selected as a calibration reference', async ({ page }) => {

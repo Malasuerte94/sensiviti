@@ -9,7 +9,7 @@ An offline Windows sensitivity finder and 3D aim trainer. Seven score-guided PSA
 
 ## Run the app
 
-Download **Sensiviti-1.1.0-setup.exe** for a guided installation, or **Sensiviti-1.1.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
+Download **Sensiviti-1.2.0-setup.exe** for a guided installation, or **Sensiviti-1.2.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
 
 Every launch automatically checks `%APPDATA%\Sensiviti\sensiviti.json` and loads your saved setup, active recommendation, session history, and unfinished calibration. The installer and portable app share the same profile. Updates and ordinary uninstallation preserve it. **Settings → Keep your progress** shows the exact file location and provides **Open saved-data folder**.
 
@@ -18,6 +18,14 @@ Only a genuinely new profile opens the setup wizard. Select your reference game,
 Calibration applies sensitivity inside the trainer. **My games** offers 13 presets: CS2, Apex Legends, Minecraft Java, Battlefield 6, PUBG, Modern Warfare (2019), Warzone, VALORANT, Overwatch 2, Fortnite, Rainbow Six Siege, Destiny 2, and THE FINALS. Select any combination for your library and copy settings into your games. The app does not change game files or system mouse settings.
 
 Use **Add custom game** to save up to 100 additional entries. Choose an existing sensitivity scale, or define a linear scale from your measured in-game sensitivity, mouse DPI, and cm/360. Custom entries can be edited or removed independently and appear on Overview and calibration results. Libraries are included in backups and loaded automatically. Existing 1.0.0 profiles retain their setup, results, and progress.
+
+**Settings → Mouse settings** stores your current hardware DPI independently of saved tests. After changing DPI on the mouse itself, update it here: all game conversions, practice, saved-result views, and resumed calibration trials preserve physical cm/360 automatically. At 800 → 1600 DPI, CS2 sensitivity 1 becomes 0.5; nonlinear game sliders are converted through angular units. This does not program the mouse or change Windows cursor settings.
+
+If a test was completed with the wrong DPI number entered, expand **Correct a test’s recorded DPI**, choose the test, and enter the actual hardware DPI used throughout it. The correction is stored as separate metadata; historical setup, trials, scores, and decisions remain intact. Choose whether to use that number as your current DPI too. This fixes the attributed cm/360 without repeating a valid test. Changing hardware DPI partway through a test without conversion requires a fresh calibration.
+
+There is no universal hardware-DPI auto-detection in the app. Windows' [standard mouse device info](https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rid_device_info_mouse) exposes no current DPI setting. Prefer the DPI shown in your mouse software. **Estimate DPI with a ruler** measures unadjusted horizontal counts over a distance you specify: click Start measurement, move straight along that distance, and press Space to finish; Esc cancels. The result is an estimate and is applied only after **Use estimated DPI → Update mouse DPI**. If raw input is unavailable, use manual entry; accelerated input is never used as a substitute.
+
+Compatibility with earlier profiles and backups is mandatory for every change, as recorded in [AGENTS.md](AGENTS.md). Immutable synthetic profile fixtures cover the released storage formats, including completed results, custom games, and resumable progress.
 
 **Controls:** click **Begin trial** to capture your mouse; **Esc** pauses and releases it. Track the moving capsule without clicking; in Snap aiming, left-click the spheres. Expired targets disappear after 2.5 seconds. The fullscreen control expands the desktop window.
 
@@ -58,7 +66,7 @@ GitHub Actions checks pushes to `main` and pull requests. Pushing a version tag 
 
 ## Calculation details
 
-Internal sensitivity is **degrees per raw mouse count**. DPI is supplied by the player, not inferred by the app.
+Internal sensitivity is **degrees per raw mouse count**. DPI is supplied by the player or estimated from raw counts over a user-measured physical distance; it is never inferred from screen scaling or cursor speed.
 
 ```
 cm/360 = 914.4 / (DPI × degreesPerCount)

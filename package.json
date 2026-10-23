@@ -1,7 +1,7 @@
 {
   "name": "sensiviti",
   "productName": "Sensiviti",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "description": "Find your feel. Automatic PSA sensitivity calibration and aim training.",
