@@ -110,6 +110,12 @@ export interface MouseSettings {
   sessionDpiOverrides: Record<string, number>;
 }
 export interface DesktopAPI {
+  turnCapture?: {
+    available: boolean;
+    start(request: import('./turnMeasurement').TurnCaptureRequest): Promise<void>;
+    cancel(id: string): Promise<void>;
+    subscribe(listener: (event: import('./turnMeasurement').TurnCaptureEvent) => void): () => void;
+  };
   profileInfo(): Promise<{ directory: string; file: string }>;
   openProfileFolder(): Promise<void>;
   load(): Promise<AppState>;

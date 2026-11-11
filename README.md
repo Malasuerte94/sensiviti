@@ -9,7 +9,7 @@ An offline Windows sensitivity finder and 3D aim trainer. Seven score-guided PSA
 
 ## Run the app
 
-Download **Sensiviti-1.2.0-setup.exe** for a guided installation, or **Sensiviti-1.2.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
+Download **Sensiviti-1.3.0-setup.exe** for a guided installation, or **Sensiviti-1.3.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
 
 Every launch automatically checks `%APPDATA%\Sensiviti\sensiviti.json` and loads your saved setup, active recommendation, session history, and unfinished calibration. The installer and portable app share the same profile. Updates and ordinary uninstallation preserve it. **Settings → Keep your progress** shows the exact file location and provides **Open saved-data folder**.
 
@@ -18,6 +18,24 @@ Only a genuinely new profile opens the setup wizard. Select your reference game,
 Calibration applies sensitivity inside the trainer. **My games** offers 13 presets: CS2, Apex Legends, Minecraft Java, Battlefield 6, PUBG, Modern Warfare (2019), Warzone, VALORANT, Overwatch 2, Fortnite, Rainbow Six Siege, Destiny 2, and THE FINALS. Select any combination for your library and copy settings into your games. The app does not change game files or system mouse settings.
 
 Use **Add custom game** to save up to 100 additional entries. Choose an existing sensitivity scale, or define a linear scale from your measured in-game sensitivity, mouse DPI, and cm/360. Custom entries can be edited or removed independently and appear on Overview and calibration results. Libraries are included in backups and loaded automatically. Existing 1.0.0 profiles retain their setup, results, and progress.
+
+In the Windows desktop build, choose **Custom — measured cm/360 (linear scale)** and click
+**Arm in-game measurement** after entering the game's sensitivity and your active mouse DPI.
+Switch to that same game, stand still and aim at a landmark without zooming. Press **F11**,
+turn once back to the landmark, then press **F11** again. Repeat for three turns. The median
+distance fills cm/360 automatically when all three agree within 5%; **Add to library** saves
+the usual custom scale. Only signed horizontal Raw Input counts are used: up-down drift does
+not add to the distance, and small left-right corrections cancel out. No ruler is needed.
+Keep DPI, FOV, sensitivity and other multipliers fixed, with acceleration disabled. A repeated
+measurement checks consistency, not whether an unknown game's slider is linear. Verify the
+recommended setting in the game; nonlinear sliders require their own supported formula.
+
+The receiver is passive: it does not rotate or lock the camera, change game settings, inject
+input, or read game memory. It reserves F11 only while armed, with audible start/stop cues,
+a two-minute limit per turn and a ten-minute session limit. Switching away during a turn,
+changing the game window, or moving a second mouse cancels capture. Closing the form/app or
+navigating away releases capture and F11. Unsupported capture is reported; manual entry
+remains available. This feature measures cm/360 from the entered DPI; it does not detect DPI.
 
 **Settings → Mouse settings** stores your current hardware DPI independently of saved tests. After changing DPI on the mouse itself, update it here: all game conversions, practice, saved-result views, and resumed calibration trials preserve physical cm/360 automatically. At 800 → 1600 DPI, CS2 sensitivity 1 becomes 0.5; nonlinear game sliders are converted through angular units. This does not program the mouse or change Windows cursor settings.
 
@@ -45,6 +63,7 @@ npm run dev
 ```powershell
 npm run typecheck
 npm test
+npm run test:native
 npx playwright install chromium
 npm run test:e2e
 npm run build
@@ -95,7 +114,8 @@ Formula references: [PSA comparison example](https://www.psamethod.com/), [Valve
 - `src/core/`: pure conversion, scoring, PSA queue, deterministic motion, shared types, and Zod validation.
 - `src/engine/`: Three.js arena and raw-input measurement.
 - `src/components/` and `src/App.tsx`: wizard, dashboard, trainer, review, results, practice, history, and settings.
-- `electron/`: isolated preload API and sandboxed desktop window; validated IPC provides only load/save, backup import/export, and fullscreen.
+- `electron/`: isolated preload API and sandboxed desktop window; validated IPC provides profile storage, backup import/export, fullscreen, and scoped turn measurement.
+- `native/`: Windows Raw Input receiver, compiled locally and bundled beside the app; captures only during an explicitly armed measurement.
 - `tests/`: unit tests and browser flow tests. `scripts/desktop-smoke.mjs` exercises the actual built Electron app.
 
 Desktop data is stored in `%APPDATA%/Sensiviti/sensiviti.json`. The executable is portable; its profile stays local to the Windows user by default. Set the optional `SENSIVITI_DATA_DIR` environment variable to an absolute folder to store the profile elsewhere, including beside a portable copy. Export/import in Settings moves that profile to another device. Saves are serialized and replace the JSON file atomically. Invalid saved files are preserved and surfaced with recovery options. Import validates the backup before asking to replace the current data. Profiles and backups are limited to 16 MB. The app keeps up to 500 saved sessions.

@@ -1235,6 +1235,33 @@ button.device-badge {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
+.turn-measurement {
+  margin-top: 22px;
+  padding: 20px;
+  border: 1px solid #34414b;
+  border-radius: 8px;
+  background: #0c151b;
+}
+.turn-measurement h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+.turn-measurement p,
+.turn-measurement li {
+  font-size: 12px;
+  line-height: 1.8;
+}
+.turn-measurement ol {
+  padding-left: 20px;
+  color: #b4d4cf;
+}
+.turn-measurement .row {
+  flex-wrap: wrap;
+}
+.turn-measurement .turn-success,
+.turn-measurement .turn-samples {
+  color: #91dfcf;
+}
 .custom-game-actions,
 .game-card-actions {
   display: flex;

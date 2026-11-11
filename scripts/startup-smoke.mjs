@@ -107,6 +107,29 @@ async function runCase(name, bytes, inspect) {
 await runCase('missing', null, async (page) => {
   await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();
 });
+if (process.platform === 'win32')
+  await runCase('turn-receiver', null, async (page) => {
+    await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const events = await page.evaluate(async () => {
+        const api = window.sensiviti.turnCapture;
+        if (!api?.available) throw new Error('Native turn capture is missing.');
+        const events = [];
+        const unsubscribe = api.subscribe((event) => events.push(event.type));
+        const id = crypto.randomUUID();
+        try {
+          await api.start({ id, dpi: 1600, sensitivity: 1 });
+          await api.cancel(id);
+          return events;
+        } finally {
+          unsubscribe();
+        }
+      });
+      expect(events).toEqual(['ready', 'cancelled']);
+      // The next arm must succeed after the previous receiver releases F11.
+      await page.waitForTimeout(1200);
+    }
+  });
 for (const version of ['1.0.0', '1.1.0', '1.2.0']) {
   const bytes = await readFile(path.join(root, `tests/fixtures/profiles/v${version}.json`));
   const expected = core.parseState(JSON.parse(bytes.toString()));

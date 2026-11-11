@@ -5,12 +5,14 @@ import path from 'node:path';
 import { initialState, parseState } from '../src/core/schema';
 import type { AppState } from '../src/core/types';
 import { profileDirectory } from './profile';
+import { TurnCaptureController } from './turnCapture';
 
 app.setName('Sensiviti');
 const profile = profileDirectory(app.getPath('appData'), process.env.SENSIVITI_DATA_DIR);
 mkdirSync(profile, { recursive: true });
 app.setPath('userData', profile);
 let window: BrowserWindow | null = null;
+let turnCapture: TurnCaptureController | null = null;
 let saveQueue: Promise<void> = Promise.resolve();
 const dataFile = () => path.join(app.getPath('userData'), 'sensiviti.json');
 async function readState(file = dataFile()): Promise<AppState> {
@@ -90,6 +92,27 @@ if (hasLock)
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => event.preventDefault());
+    turnCapture = new TurnCaptureController(
+      app.isPackaged
+        ? path.join(process.resourcesPath, 'native', 'turn-capture.exe')
+        : path.join(__dirname, 'native', 'turn-capture.exe'),
+      (event) => {
+        if (window && !window.isDestroyed() && !window.webContents.isDestroyed())
+          window.webContents.send('turn:event', event);
+      },
+    );
+    window.webContents.on('did-start-navigation', () => turnCapture?.cancel());
+    window.webContents.on('render-process-gone', () => turnCapture?.cancel());
+    ipcMain.handle('turn:start', (event, request: unknown) => {
+      trusted(event);
+      if (process.platform !== 'win32') throw new Error('In-game measurement requires Windows.');
+      return turnCapture!.start(request);
+    });
+    ipcMain.handle('turn:cancel', (event, id: unknown) => {
+      trusted(event);
+      if (typeof id !== 'string') throw new Error('Invalid measurement ID');
+      turnCapture!.cancel(id);
+    });
     ipcMain.handle('state:load', (event) => {
       trusted(event);
       return readState();
@@ -139,10 +162,12 @@ if (hasLock)
       void window.loadURL(process.env.SENSIVITI_DEV_URL);
     else void window.loadFile(path.join(__dirname, '../dist/index.html'));
     window.on('closed', () => {
+      turnCapture?.cancel();
       window = null;
     });
   });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => {
+  turnCapture?.cancel();
   /* Each trial is committed before proceeding; no deferred shutdown writes. */
 });

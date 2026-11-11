@@ -97,6 +97,14 @@ try {
       1600,
     );
   }
+  await page.getByRole('button', { name: 'My games' }).click();
+  await page.getByRole('button', { name: 'Add custom game', exact: true }).click();
+  await page.getByLabel('Sensitivity scale', { exact: true }).selectOption('linear');
+  await page.getByRole('button', { name: 'Arm in-game measurement', exact: true }).click();
+  await expect(page.getByText('Ready: 0/3', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Cancel measurement', exact: true }).click();
+  await expect(page.getByText('Measurement cancelled.', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Close custom game form', exact: true }).click();
   await page.getByRole('button', { name: 'Practice range', exact: true }).click();
   await page.getByRole('button', { name: 'Start practice' }).first().click();
   await expect(page.locator('canvas')).toBeVisible();

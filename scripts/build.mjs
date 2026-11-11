@@ -1,6 +1,8 @@
 import { build } from 'esbuild';
 import { build as viteBuild } from 'vite';
 import { execFileSync } from 'node:child_process';
+import { buildNative } from './build-native.mjs';
+await buildNative();
 execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', '--noEmit'], {
   stdio: 'inherit',
 });

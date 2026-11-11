@@ -4,6 +4,7 @@ import { angularFromCm, cm360, customGameProfile, gameIds, games } from '../core
 import { customGameSchema } from '../core/schema';
 import type { AppState, CustomGame } from '../core/types';
 import { GameCard } from './Common';
+import { TurnMeasurement } from './TurnMeasurement';
 
 export function GameLibrary({
   data,
@@ -25,6 +26,7 @@ export function GameLibrary({
   const [distance, setDistance] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [captureActive, setCaptureActive] = useState(false);
 
   function openForm(game?: CustomGame) {
     setEditing(game?.id ?? null);
@@ -51,6 +53,7 @@ export function GameLibrary({
   }
   async function save(event: FormEvent) {
     event.preventDefault();
+    if (captureActive) return;
     const measured = [Number(sensitivity), Number(measurementDpi), Number(distance)];
     if (scale === 'linear' && measured.some((value) => !Number.isFinite(value) || value <= 0)) {
       setError('Enter a positive sensitivity, DPI, and measured cm/360.');
@@ -85,7 +88,11 @@ export function GameLibrary({
           <h2>Choose your games</h2>
           <p>Add as many presets as you like, or create your own.</p>
         </div>
-        <button className="button secondary" onClick={() => openForm()} disabled={busy}>
+        <button
+          className="button secondary"
+          onClick={() => openForm()}
+          disabled={busy || captureActive}
+        >
           <Plus size={15} /> Add custom game
         </button>
       </div>
@@ -142,6 +149,7 @@ export function GameLibrary({
               </label>
               <select
                 id="custom-scale"
+                disabled={captureActive}
                 value={scale}
                 onChange={(e) => setScale(e.target.value as CustomGame['scale'])}
               >
@@ -157,9 +165,9 @@ export function GameLibrary({
           {scale === 'linear' ? (
             <>
               <p className="muted small">
-                In your game, measure how far your mouse travels for one full hipfire turn. This
-                method requires a linear sensitivity scale. Keep acceleration off and use the same
-                FOV.
+                Measure one full hipfire turn in your game with F11, or enter a known turn distance.
+                This profile requires a linear sensitivity scale. Keep acceleration off and use the
+                same FOV and other look multipliers after measuring.
               </p>
               <div className="measurement-fields">
                 <label className="field-label" htmlFor="custom-sensitivity">
@@ -171,7 +179,11 @@ export function GameLibrary({
                     step="any"
                     required
                     value={sensitivity}
-                    onChange={(e) => setSensitivity(e.target.value)}
+                    disabled={captureActive}
+                    onChange={(e) => {
+                      setSensitivity(e.target.value);
+                      setDistance('');
+                    }}
                   />
                 </label>
                 <label className="field-label" htmlFor="custom-dpi">
@@ -184,7 +196,11 @@ export function GameLibrary({
                     step="1"
                     required
                     value={measurementDpi}
-                    onChange={(e) => setMeasurementDpi(e.target.value)}
+                    disabled={captureActive}
+                    onChange={(e) => {
+                      setMeasurementDpi(e.target.value);
+                      setDistance('');
+                    }}
                   />
                 </label>
                 <label className="field-label" htmlFor="custom-distance">
@@ -196,10 +212,18 @@ export function GameLibrary({
                     step="any"
                     required
                     value={distance}
+                    disabled={captureActive}
                     onChange={(e) => setDistance(e.target.value)}
                   />
                 </label>
               </div>
+              <TurnMeasurement
+                key={editing ?? 'new'}
+                dpi={Number(measurementDpi)}
+                sensitivity={Number(sensitivity)}
+                onActive={setCaptureActive}
+                onDistance={(cm) => setDistance(String(cm))}
+              />
             </>
           ) : (
             <p className="muted small">
@@ -208,7 +232,7 @@ export function GameLibrary({
             </p>
           )}
           <div className="row custom-game-actions">
-            <button className="button primary" type="submit" disabled={busy}>
+            <button className="button primary" type="submit" disabled={busy || captureActive}>
               {editing ? 'Save custom game' : 'Add to library'}
             </button>
             <button
@@ -242,7 +266,7 @@ export function GameLibrary({
                 <button
                   className="text-button"
                   aria-label={`Edit ${game.name}`}
-                  disabled={busy}
+                  disabled={busy || captureActive}
                   onClick={() => openForm(game)}
                 >
                   <Pencil size={14} /> Edit
@@ -250,7 +274,7 @@ export function GameLibrary({
                 <button
                   className="text-button"
                   aria-label={`Remove ${game.name}`}
-                  disabled={busy}
+                  disabled={busy || captureActive}
                   onClick={() =>
                     void change((state) => ({
                       ...state,

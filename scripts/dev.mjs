@@ -2,6 +2,8 @@ import { build } from 'esbuild';
 import { createServer } from 'vite';
 import { spawn } from 'node:child_process';
 import electron from 'electron';
+import { buildNative } from './build-native.mjs';
+await buildNative();
 await build({
   entryPoints: ['electron/main.ts', 'electron/preload.ts'],
   bundle: true,
