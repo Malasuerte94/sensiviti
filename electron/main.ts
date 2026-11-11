@@ -6,6 +6,8 @@ import { initialState, parseState } from '../src/core/schema';
 import type { AppState } from '../src/core/types';
 import { profileDirectory } from './profile';
 import { TurnCaptureController } from './turnCapture';
+import { UpdateController } from './updates';
+import { version } from '../package.json';
 
 app.setName('Sensiviti');
 const profile = profileDirectory(app.getPath('appData'), process.env.SENSIVITI_DATA_DIR);
@@ -13,6 +15,7 @@ mkdirSync(profile, { recursive: true });
 app.setPath('userData', profile);
 let window: BrowserWindow | null = null;
 let turnCapture: TurnCaptureController | null = null;
+let updates: UpdateController | null = null;
 let saveQueue: Promise<void> = Promise.resolve();
 const dataFile = () => path.join(app.getPath('userData'), 'sensiviti.json');
 async function readState(file = dataFile()): Promise<AppState> {
@@ -92,6 +95,28 @@ if (hasLock)
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', (event) => event.preventDefault());
+    updates = new UpdateController(
+      version,
+      process.env.PORTABLE_EXECUTABLE_FILE ? 'portable' : 'installer',
+      (status) => {
+        if (window && !window.isDestroyed() && !window.webContents.isDestroyed())
+          window.webContents.send('updates:status', status);
+      },
+      (url) => shell.openExternal(url),
+    );
+    ipcMain.handle('updates:status', (event) => {
+      trusted(event);
+      return updates!.status();
+    });
+    ipcMain.handle('updates:check', (event) => {
+      trusted(event);
+      return updates!.check();
+    });
+    ipcMain.handle('updates:download', (event) => {
+      trusted(event);
+      return updates!.download();
+    });
+    if (app.isPackaged && process.platform === 'win32') updates.start();
     turnCapture = new TurnCaptureController(
       app.isPackaged
         ? path.join(process.resourcesPath, 'native', 'turn-capture.exe')
@@ -168,6 +193,7 @@ if (hasLock)
   });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => {
+  updates?.dispose();
   turnCapture?.cancel();
   /* Each trial is committed before proceeding; no deferred shutdown writes. */
 });

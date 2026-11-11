@@ -110,6 +110,7 @@ export interface MouseSettings {
   sessionDpiOverrides: Record<string, number>;
 }
 export interface DesktopAPI {
+  updates?: import('./updates').UpdateAPI;
   turnCapture?: {
     available: boolean;
     start(request: import('./turnMeasurement').TurnCaptureRequest): Promise<void>;

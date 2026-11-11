@@ -65,6 +65,7 @@ import { RoundReview } from './components/RoundReview';
 import { GameCard, StatCard } from './components/Common';
 import { GameLibrary } from './components/GameLibrary';
 import { MouseSettings } from './components/MouseSettings';
+import { UpdateNotice, UpdateSettings, useUpdates } from './components/Updates';
 
 type Page = 'home' | 'setup' | 'practice' | 'games' | 'history' | 'settings' | 'session' | 'result';
 const navItems = [
@@ -78,6 +79,7 @@ const date = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 export function App() {
+  const updates = useUpdates();
   const [data, setData] = useState<AppState>(initialState);
   const ref = useRef(data);
   const queue = useRef<Promise<void>>(Promise.resolve());
@@ -392,6 +394,7 @@ export function App() {
             )}
           </div>
         )}
+        {!['session', 'practice', 'settings'].includes(page) && <UpdateNotice updates={updates} />}
         <main>
           {loadFailed ? (
             <div className="panel empty-state">
@@ -1143,6 +1146,7 @@ export function App() {
                       </div>
                     </section>
                   </div>
+                  <UpdateSettings updates={updates} />
                   <section className="panel about-panel">
                     <div className="row gap12">
                       <span className="brand-symbol">

@@ -107,6 +107,42 @@ async function runCase(name, bytes, inspect) {
 await runCase('missing', null, async (page) => {
   await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();
 });
+await runCase('updates', null, async (page, desktop) => {
+  await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();
+  // Only HTTP and the external browser are stubbed. Main-process validation,
+  // isolated preload, subscriptions and renderer controls remain real.
+  await desktop.evaluate(({ shell }) => {
+    globalThis.fetch = async () =>
+      new Response(
+        JSON.stringify({
+          tag_name: 'v999.0.0',
+          draft: false,
+          prerelease: false,
+          assets: [
+            {
+              name: 'Sensiviti-999.0.0-setup.exe',
+              state: 'uploaded',
+              size: 100000000,
+              browser_download_url:
+                'https://github.com/Malasuerte94/sensiviti/releases/download/v999.0.0/Sensiviti-999.0.0-setup.exe',
+            },
+          ],
+        }),
+      );
+    shell.openExternal = async (url) => {
+      globalThis.testDownloadURL = url;
+    };
+  });
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Check for updates' }).click();
+  await expect(page.getByText('Sensiviti 999.0.0 is available.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Download installer', exact: true }).click();
+  expect(await desktop.evaluate(() => globalThis.testDownloadURL)).toBe(
+    'https://github.com/Malasuerte94/sensiviti/releases/download/v999.0.0/Sensiviti-999.0.0-setup.exe',
+  );
+  await page.getByRole('button', { name: 'Overview', exact: true }).click();
+  await expect(page.getByText('Sensiviti 999.0.0 is available', { exact: true })).toBeVisible();
+});
 if (process.platform === 'win32')
   await runCase('turn-receiver', null, async (page) => {
     await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();

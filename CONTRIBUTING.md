@@ -41,3 +41,14 @@ write permission. Public releases are never silently replaced on rerun.
 For a local build, use `npm run package`. It creates both executables and release
 checksums under `release/`. Code signing is not configured; enabling signing requires
 a maintainer's own Windows publisher certificate.
+
+Desktop update notifications use the public GitHub `releases/latest` endpoint. Keep stable
+tags in `vMAJOR.MINOR.PATCH` form and preserve the versioned setup/portable asset names.
+Only complete, published stable releases with a newer numeric version are offered. The
+release workflow uploads assets before publishing so checks cannot offer a partial upload.
+The portable wrapper supplies `PORTABLE_EXECUTABLE_FILE` to select the right download.
+No player-profile fields are used for update state, and no executable is replaced in place.
+Unit tests cover scheduling, timeout/offline recovery, version/asset validation and URL
+restrictions. Browser tests exercise notifications and Settings; startup checks exercise
+the actual sandboxed IPC with HTTP/browser launch stubbed. The packaged desktop smoke
+also verifies portable edition detection. Development builds never poll automatically.

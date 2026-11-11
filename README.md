@@ -9,7 +9,19 @@ An offline Windows sensitivity finder and 3D aim trainer. Seven score-guided PSA
 
 ## Run the app
 
-Download **Sensiviti-1.3.0-setup.exe** for a guided installation, or **Sensiviti-1.3.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
+Download **Sensiviti-1.4.0-setup.exe** for a guided installation, or **Sensiviti-1.4.0-portable.exe** to run without installation, from the [Releases page](https://github.com/Malasuerte94/sensiviti/releases). Both target Windows x64 and include their runtime; a separately installed Node.js is not required. SHA-256 checksums are provided with each release.
+
+Starting with **1.4.0**, both Windows editions check for a new public stable release shortly
+after startup and every six hours while open. A non-blocking notification offers the matching
+installer or portable download; **Settings → App updates → Check for updates** checks manually.
+Downloads open in your browser. Close the app, then run the downloaded installer or new
+portable executable. Existing profiles are loaded from the same location. Installation and
+replacement of executables remain manual; updates never interrupt a running calibration.
+The first upgrade from 1.3.0 or earlier must be downloaded from the Releases page.
+
+Update checks request only public release metadata from GitHub, with no profile data,
+credentials, or telemetry. Offline use remains available; failed checks can be retried in
+Settings (at most once per minute). Development/browser previews do not check automatically.
 
 Every launch automatically checks `%APPDATA%\Sensiviti\sensiviti.json` and loads your saved setup, active recommendation, session history, and unfinished calibration. The installer and portable app share the same profile. Updates and ordinary uninstallation preserve it. **Settings → Keep your progress** shows the exact file location and provides **Open saved-data folder**.
 

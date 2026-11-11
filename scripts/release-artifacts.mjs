@@ -24,14 +24,14 @@ Offline mouse-sensitivity calibration and 3D aim training for Windows x64.
 - **Sensiviti-${version}-portable.exe** — run without installation.
 - **SHA256SUMS.txt** — SHA-256 checksums for both executables.
 
-### New in 1.3.0
+### New in 1.4.0
 
-- Measure a custom game's cm/360 without a ruler: enter your current DPI and in-game sensitivity, arm measurement, then mark three full turns in that game with F11.
-- Automatically fills the median distance when the three turns agree within 5%. Add to library saves the existing linear custom profile.
-- Counts horizontal raw mouse movement in the background. Up-down drift is ignored and left-right corrections cancel out; the camera remains under your control.
-- Audible start/stop cues, cancellation, focus-loss detection, single-mouse validation, and automatic timeouts. F11 is released when capture ends.
-- Passive Windows receiver: no input injection, game-memory access, or automatic changes to game settings. Keep acceleration off and FOV/multipliers unchanged; unknown nonlinear scales still need a supported formula.
-- Preserves profiles and JSON backups from 1.0.0, 1.1.0 and 1.2.0, including completed tests, custom games, DPI corrections and unfinished calibrations. No storage-format change.
+- Both installed and portable editions automatically check for newer stable releases after startup and every six hours while open.
+- A non-blocking update notification offers the correct Windows download. Settings → App updates also shows status, the last successful check, and a manual Check for updates button.
+- Downloads open in your browser. Close Sensiviti, then run the new installer or portable file. Installation and executable replacement remain manual; running calibrations are never interrupted.
+- Handles offline use, timeouts and rate limits without blocking the app. Requests only public GitHub release information; profiles stay local.
+- Preserves profiles and JSON backups from 1.0.0 through 1.3.0, including completed tests, custom games, DPI corrections and unfinished calibrations. No storage-format change.
+- Upgrade from 1.3.0 or earlier manually once; those versions do not contain the update checker.
 
 ### Included
 
@@ -43,6 +43,7 @@ Offline mouse-sensitivity calibration and 3D aim training for Windows x64.
 - Saved results, session resume, and JSON backup import/export.
 - Automatic profile loading on every launch from %APPDATA%/Sensiviti/sensiviti.json. Installer and portable share this location.
 - Settings shows the saved-data path and can open its folder.
+- Automatic release checks and matching installer/portable download notifications.
 
 MIT licensed. No account or network connection required to use the app.
 

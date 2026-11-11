@@ -50,6 +50,10 @@ try {
   await page.context().setOffline(true);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Start with what you know.' })).toBeVisible();
+  expect(await page.evaluate(() => window.sensiviti.updates.status())).toMatchObject({
+    currentVersion: version,
+    edition: packaged ? 'portable' : 'installer',
+  });
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByRole('button', { name: 'Save & explore' }).click();

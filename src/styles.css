@@ -1974,6 +1974,51 @@ input[type='range'] {
   padding: 26px 30px;
   margin-top: 23px;
 }
+.update-notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 30px;
+  border-bottom: 1px solid #36534f;
+  background: #142927;
+  color: #a1e9df;
+}
+.update-notice > div {
+  flex: 1;
+}
+.update-notice strong,
+.update-notice span {
+  display: block;
+}
+.update-notice strong {
+  font-size: 13px;
+}
+.update-notice span {
+  font-size: 11px;
+  margin-top: 4px;
+  color: #a0b9ba;
+}
+.update-notice .button {
+  white-space: nowrap;
+}
+.update-panel {
+  margin-top: 23px;
+  padding: 26px 30px;
+}
+.update-panel .section-heading {
+  margin: 0 0 16px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.update-panel > p {
+  margin: 12px 0;
+}
+.update-panel > small {
+  display: block;
+  color: #8a9fa9;
+  font-size: 11px;
+  line-height: 1.6;
+}
 .about-panel > .row {
   min-width: 230px;
 }
